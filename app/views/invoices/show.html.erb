@@ -1,0 +1,184 @@
+<div class="page-header">
+  <h1>Invoice <%= @invoice.invoice_number %></h1>
+  <div class="actions">
+    <% unless @invoice.paid? %>
+      <%= link_to 'Edit', edit_invoice_path(@invoice), class: "btn" %>
+    <% end %>
+    <%= link_to 'Download PDF', download_pdf_invoice_path(@invoice), class: "btn", target: '_blank' %>
+    <% if @invoice.draft? || @invoice.sent? %>
+      <%= button_to 'Mark as Paid', mark_paid_invoice_path(@invoice), method: :patch, class: "btn" %>
+    <% end %>
+    <%= link_to 'Back', invoices_path, class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<!-- Status and Invoice Info at the top -->
+<div class="card" style="margin-bottom: 2rem;">
+  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;">
+    <div>
+      <h3 style="margin: 0 0 0.5rem 0; font-size: 14px; color: #5a6c7d; text-transform: uppercase; font-weight: 600;">Status</h3>
+      <%
+        status_colors = {
+          'draft' => '#6c757d',
+          'sent' => '#0dcaf0',
+          'viewed' => '#0d6efd',
+          'paid' => '#5cb85c',
+          'partially_paid' => '#ffc107',
+          'overdue' => '#dc3545',
+          'cancelled' => '#6c757d'
+        }
+        status_color = status_colors[@invoice.status] || '#6c757d'
+      %>
+      <%= form_with(model: @invoice, url: invoice_path(@invoice), method: :patch, data: { controller: "form-disable", turbo: false }) do |f| %>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <%= f.select :status, Invoice.statuses.keys.map { |s| [s.titleize, s] }, {}, {
+            style: "padding: 0.5rem; border-radius: 4px; border: 1px solid #e1e8ed; font-weight: 600;",
+            data: { action: "change->form-disable#submit" }
+          } %>
+        </div>
+      <% end %>
+    </div>
+
+    <div>
+      <h3 style="margin: 0 0 0.5rem 0; font-size: 14px; color: #5a6c7d; text-transform: uppercase; font-weight: 600;">Invoice Date</h3>
+      <p style="margin: 0; font-size: 16px; font-weight: 500;"><%= @invoice.invoice_date.strftime("%B %d, %Y") %></p>
+    </div>
+
+    <div>
+      <h3 style="margin: 0 0 0.5rem 0; font-size: 14px; color: #5a6c7d; text-transform: uppercase; font-weight: 600;">Due Date</h3>
+      <p style="margin: 0; font-size: 16px; font-weight: 500;"><%= @invoice.due_date.strftime("%B %d, %Y") %></p>
+    </div>
+
+    <% if @invoice.paid? %>
+      <div>
+        <h3 style="margin: 0 0 0.5rem 0; font-size: 14px; color: #5a6c7d; text-transform: uppercase; font-weight: 600;">Paid Date</h3>
+        <p style="margin: 0; font-size: 16px; font-weight: 500;"><%= @invoice.paid_date.strftime("%B %d, %Y") %></p>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<% profile = Profile.first %>
+<div class="invoice-layout" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+  <div class="from-section">
+    <% if profile %>
+      <% if profile.show_logo && profile.logo.attached? %>
+        <%= image_tag profile.logo, style: "max-width: 150px; margin-bottom: 1rem;" %>
+      <% end %>
+      <p style="margin: 0;"><strong><%= profile.display_name %></strong></p>
+      <% if profile.individual? && profile.title.present? %>
+        <p style="margin: 0; color: #666;"><%= profile.title %></p>
+      <% end %>
+      <% if profile.email.present? %>
+        <p style="margin: 0;"><%= profile.email %></p>
+      <% end %>
+      <% if profile.phone.present? %>
+        <p style="margin: 0;"><%= profile.phone %></p>
+      <% end %>
+      <% if profile.full_address.present? %>
+        <p style="margin-top: 0.5rem; white-space: pre-line;"><%= profile.full_address %></p>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="to-section">
+    <h3 style="margin-top: 0;">Bill To</h3>
+    <p style="margin: 0;"><strong><%= @invoice.client.name %></strong></p>
+    <% if @invoice.client.contact_name.present? %>
+      <p style="margin: 0;">Attn: <%= @invoice.client.contact_name %></p>
+    <% end %>
+    <% if @invoice.client.email.present? %>
+      <p style="margin: 0;"><%= @invoice.client.email %></p>
+    <% end %>
+    <% if @invoice.client.phone.present? %>
+      <p style="margin: 0;"><%= @invoice.client.phone %></p>
+    <% end %>
+    <% if @invoice.client.full_address.present? %>
+      <p style="margin-top: 0.5rem; white-space: pre-line;"><%= @invoice.client.full_address %></p>
+    <% end %>
+  </div>
+</div>
+
+<h2>Line Items</h2>
+
+<%
+  # Group line items by project
+  grouped_items = @invoice.line_items.includes(:time_entry).group_by do |item|
+    item.time_entry&.project || nil
+  end
+%>
+
+<% grouped_items.each do |project, items| %>
+  <% if project %>
+    <h3 style="margin-top: 2rem; margin-bottom: 0.5rem; color: #2c3e50; font-size: 16px;">
+      <i class="bi bi-folder"></i> <%= project.name %>
+    </h3>
+  <% elsif grouped_items.keys.length > 1 %>
+    <h3 style="margin-top: 2rem; margin-bottom: 0.5rem; color: #2c3e50; font-size: 16px;">
+      <i class="bi bi-receipt"></i> Other Items
+    </h3>
+  <% end %>
+
+  <table style="<%= 'margin-bottom: 1rem;' if grouped_items.keys.length > 1 %>">
+    <thead>
+      <tr>
+        <th>Description</th>
+        <th>Hours</th>
+        <th>Rate</th>
+        <th>Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% items.each do |item| %>
+        <tr>
+          <td><%= item.description %></td>
+          <td><%= sprintf('%.2f', item.quantity) %></td>
+          <td><%= number_to_currency(item.rate) %></td>
+          <td><%= number_to_currency(item.amount) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+    <% if grouped_items.keys.length > 1 %>
+      <tfoot>
+        <tr>
+          <td colspan="3" style="text-align: right;"><strong><%= project&.name || 'Other' %> Subtotal:</strong></td>
+          <td><strong><%= number_to_currency(items.sum(&:amount)) %></strong></td>
+        </tr>
+      </tfoot>
+    <% end %>
+  </table>
+<% end %>
+
+<!-- Invoice Totals -->
+<table style="margin-top: 2rem;">
+  <tfoot>
+    <tr>
+      <td colspan="3" style="text-align: right;"><strong>Subtotal:</strong></td>
+      <td><strong><%= number_to_currency(@invoice.subtotal) %></strong></td>
+    </tr>
+    <% if @invoice.discount_amount.to_f > 0 %>
+      <tr>
+        <td colspan="3" style="text-align: right;"><strong>Discount:</strong></td>
+        <td><strong>-<%= number_to_currency(@invoice.discount_amount) %></strong></td>
+      </tr>
+    <% end %>
+    <tr style="font-size: 18px;">
+      <td colspan="3" style="text-align: right;"><strong>Total:</strong></td>
+      <td><strong><%= number_to_currency(@invoice.total) %></strong></td>
+    </tr>
+  </tfoot>
+</table>
+
+<% if @invoice.notes.present? %>
+  <h3>Notes</h3>
+  <div style="background: #f5f7fa; padding: 1rem; border-radius: 4px;">
+    <%= @invoice.notes %>
+  </div>
+<% end %>
+
+<% if @invoice.payment_instructions.present? %>
+  <h3>Payment Instructions</h3>
+  <div style="background: #f5f7fa; padding: 1rem; border-radius: 4px;">
+    <%= @invoice.payment_instructions %>
+  </div>
+<% end %>

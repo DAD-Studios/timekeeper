@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Timekeeper</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "lexxy" %>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body>
+    <nav data-controller="mobile-menu">
+      <div class="nav-container">
+        <%= link_to root_path, class: "brand" do %><i class="bi bi-stopwatch"></i> Timekeeper<% end %>
+
+        <button type="button" class="menu-toggle" data-action="click->mobile-menu#toggle">
+          <i class="bi bi-list"></i>
+        </button>
+
+        <div class="nav-links" data-mobile-menu-target="menu">
+          <%= link_to root_path do %><i class="bi bi-play-circle"></i> Timer<% end %>
+          <%= link_to time_entries_path do %><i class="bi bi-clock-history"></i> History<% end %>
+          <%= link_to reports_path do %><i class="bi bi-graph-up"></i> Reports<% end %>
+          <%= link_to invoices_path do %><i class="bi bi-file-earmark-text"></i> Invoices<% end %>
+          <%= link_to clients_path do %><i class="bi bi-people"></i> Clients<% end %>
+          <%= link_to projects_path do %><i class="bi bi-folder"></i> Projects<% end %>
+          <%= link_to edit_profile_path do %><i class="bi bi-person-circle"></i> Profile<% end %>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Persistent Timer Widget -->
+    <% if @running_timer.present? %>
+      <div data-controller="timer" data-timer-start-time-value="<%= @running_timer.start_time.iso8601 %>"
+           class="timer-widget">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <strong style="font-size: 14px;"><i class="bi bi-play-circle-fill"></i> Timer Running</strong>
+          <%= link_to root_path, style: "color: white; text-decoration: none; opacity: 0.8; font-size: 18px;" do %>
+            <i class="bi bi-arrows-angle-expand"></i>
+          <% end %>
+        </div>
+        <div style="font-size: 12px; opacity: 0.9; margin-bottom: 0.25rem;">
+          <strong><%= @running_timer.task %></strong>
+        </div>
+        <div class="timer-details">
+          <%= @running_timer.project.name %> • <%= @running_timer.client.name %>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">
+          <span data-timer-target="elapsed" style="font-size: 20px; font-weight: bold; font-family: monospace;"></span>
+          <%= button_to stop_time_entry_path(@running_timer), method: :patch,
+              style: "background: white; color: #5cb85c; border: none; padding: 0.4rem 1rem; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.25rem;" do %>
+            <i class="bi bi-stop-circle"></i> Stop
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="container">
+      <% if notice.present? %>
+        <p class="notice"><%= notice %></p>
+      <% end %>
+      <% if alert.present? %>
+        <p class="alert"><%= alert %></p>
+      <% end %>
+
+      <%= yield %>
+    </div>
+  </body>
+</html>

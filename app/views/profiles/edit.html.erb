@@ -1,0 +1,240 @@
+<div style="max-width: 1200px; margin: 0 auto;">
+  <h1>Profile Settings</h1>
+
+  <%= form_with(model: @profile, url: profile_path, method: :patch) do |form| %>
+    <% if @profile.errors.any? %>
+      <div style="background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; border-radius: 4px; padding: 1rem; margin-bottom: 1.5rem;">
+        <h2 style="font-weight: 600; margin-bottom: 0.5rem;"><%= pluralize(@profile.errors.count, "error") %> prohibited this profile from being saved:</h2>
+        <ul style="margin: 0; padding-left: 1.5rem;">
+          <% @profile.errors.each do |error| %>
+            <li><%= error.full_message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <!-- Two Column Layout -->
+    <div class="profile-grid">
+      <!-- Left Column: Branding -->
+      <div>
+        <div class="card">
+          <h2>Branding</h2>
+
+          <!-- Logo -->
+          <div style="margin-bottom: 1.5rem;">
+            <%= form.label :logo, class: "block font-medium mb-1" %>
+            <% if @profile.logo.attached? %>
+              <div style="margin-bottom: 1rem; text-align: center;">
+                <%= image_tag @profile.logo, style: "max-width: 200px; max-height: 200px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" %>
+              </div>
+            <% end %>
+            <%= form.file_field :logo, style: "width: 100%; font-size: 14px;" %>
+            <div style="margin-top: 0.5rem;">
+              <%= form.check_box :show_logo, style: "margin-right: 0.5rem;" %>
+              <%= form.label :show_logo, "Show logo on invoices", style: "display: inline; font-weight: normal;" %>
+            </div>
+          </div>
+
+          <!-- Signature -->
+          <div style="margin-bottom: 1.5rem;">
+            <%= form.label :signature, class: "block font-medium mb-1" %>
+            <% if @profile.signature.attached? %>
+              <div style="margin-bottom: 1rem; text-align: center;">
+                <%= image_tag @profile.signature, style: "max-width: 200px; max-height: 100px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" %>
+              </div>
+            <% end %>
+            <%= form.file_field :signature, style: "width: 100%; font-size: 14px;" %>
+          </div>
+
+          <!-- Primary Color -->
+          <div>
+            <%= form.label :primary_color, "Primary Color (for future theming)", class: "block font-medium mb-1" %>
+            <%= form.color_field :primary_color, style: "height: 40px; width: 100%; border-radius: 4px; border: 1px solid #e1e8ed;" %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Main Content -->
+      <div>
+        <!-- Entity Type -->
+        <div class="card" data-controller="collapsible">
+          <div style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;" data-action="click->collapsible#toggle">
+            <h2 style="margin: 0;"><i class="bi bi-chevron-down" data-collapsible-target="icon"></i> Entity Type</h2>
+          </div>
+          <div data-collapsible-target="content" style="margin-top: 1rem;">
+            <div style="display: flex; gap: 2rem;">
+              <label style="display: flex; align-items: center; cursor: pointer;">
+                <%= form.radio_button :entity_type, "individual", style: "margin-right: 0.5rem;" %>
+                <span>Individual</span>
+              </label>
+              <label style="display: flex; align-items: center; cursor: pointer;">
+                <%= form.radio_button :entity_type, "business", style: "margin-right: 0.5rem;" %>
+                <span>Business</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Business Information -->
+        <div class="card" data-entity-type="business" data-controller="collapsible" style="display: <%= @profile.business? ? 'block' : 'none' %>">
+          <div style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;" data-action="click->collapsible#toggle">
+            <h2 style="margin: 0;"><i class="bi bi-chevron-down" data-collapsible-target="icon"></i> Business Information</h2>
+          </div>
+          <div data-collapsible-target="content" style="margin-top: 1rem;">
+            <div class="form-grid-2">
+              <div>
+                <%= form.label :business_name, class: "block font-medium mb-1" %>
+                <%= form.text_field :business_name, style: "width: 100%;" %>
+              </div>
+              <div>
+                <%= form.label :tax_id, "Tax ID / EIN", class: "block font-medium mb-1" %>
+                <%= form.text_field :tax_id, style: "width: 100%;" %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Individual Information -->
+        <div class="card" data-entity-type="individual" data-controller="collapsible" style="display: <%= @profile.individual? ? 'block' : 'none' %>">
+          <div style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;" data-action="click->collapsible#toggle">
+            <h2 style="margin: 0;"><i class="bi bi-chevron-down" data-collapsible-target="icon"></i> Personal Information</h2>
+          </div>
+          <div data-collapsible-target="content" style="margin-top: 1rem;">
+            <div class="form-grid-2" style="margin-bottom: 1rem;">
+              <div>
+                <%= form.label :first_name, class: "block font-medium mb-1" %>
+                <%= form.text_field :first_name, style: "width: 100%;" %>
+              </div>
+              <div>
+                <%= form.label :last_name, class: "block font-medium mb-1" %>
+                <%= form.text_field :last_name, style: "width: 100%;" %>
+              </div>
+            </div>
+            <div>
+              <%= form.label :title, class: "block font-medium mb-1" %>
+              <%= form.text_field :title, placeholder: "e.g., Freelance Developer", style: "width: 100%;" %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="card" data-controller="collapsible">
+          <div style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;" data-action="click->collapsible#toggle">
+            <h2 style="margin: 0;"><i class="bi bi-chevron-down" data-collapsible-target="icon"></i> Contact Information</h2>
+          </div>
+          <div data-collapsible-target="content" style="margin-top: 1rem;">
+            <div class="form-grid-2">
+              <div>
+                <%= form.label :email, class: "block font-medium mb-1" %>
+                <%= form.email_field :email, style: "width: 100%;" %>
+              </div>
+              <div>
+                <%= form.label :phone, class: "block font-medium mb-1" %>
+                <%= form.text_field :phone, style: "width: 100%;" %>
+              </div>
+              <div style="grid-column: 1 / -1;">
+                <%= form.label :website, class: "block font-medium mb-1" %>
+                <%= form.url_field :website, style: "width: 100%;" %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Address -->
+        <div class="card" data-controller="collapsible">
+          <div style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;" data-action="click->collapsible#toggle">
+            <h2 style="margin: 0;"><i class="bi bi-chevron-down" data-collapsible-target="icon"></i> Address</h2>
+          </div>
+          <div data-collapsible-target="content" style="margin-top: 1rem;">
+            <div style="display: grid; gap: 1rem;">
+              <div>
+                <%= form.label :address_line1, class: "block font-medium mb-1" %>
+                <%= form.text_field :address_line1, style: "width: 100%;" %>
+              </div>
+              <div>
+                <%= form.label :address_line2, class: "block font-medium mb-1" %>
+                <%= form.text_field :address_line2, style: "width: 100%;" %>
+              </div>
+              <div class="form-grid-city">
+                <div>
+                  <%= form.label :city, class: "block font-medium mb-1" %>
+                  <%= form.text_field :city, style: "width: 100%;" %>
+                </div>
+                <div>
+                  <%= form.label :state, class: "block font-medium mb-1" %>
+                  <%= form.text_field :state, style: "width: 100%;" %>
+                </div>
+                <div>
+                  <%= form.label :zip_code, class: "block font-medium mb-1" %>
+                  <%= form.text_field :zip_code, style: "width: 100%;" %>
+                </div>
+              </div>
+              <div>
+                <%= form.label :country, class: "block font-medium mb-1" %>
+                <%= form.text_field :country, style: "width: 100%;" %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Invoice Settings -->
+        <div class="card" data-controller="collapsible">
+          <div style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;" data-action="click->collapsible#toggle">
+            <h2 style="margin: 0;"><i class="bi bi-chevron-down" data-collapsible-target="icon"></i> Invoice Settings</h2>
+          </div>
+          <div data-collapsible-target="content" style="margin-top: 1rem;">
+            <div class="form-grid-3" style="margin-bottom: 1rem;">
+              <div>
+                <%= form.label :invoice_prefix, class: "block font-medium mb-1" %>
+                <%= form.text_field :invoice_prefix, placeholder: "INV", style: "width: 100%;" %>
+              </div>
+              <div>
+                <%= form.label :next_invoice_number, class: "block font-medium mb-1" %>
+                <%= form.number_field :next_invoice_number, style: "width: 100%;" %>
+              </div>
+              <div>
+                <%= form.label :default_payment_terms, "Payment Terms (days)", class: "block font-medium mb-1" %>
+                <%= form.number_field :default_payment_terms, placeholder: "30", style: "width: 100%;" %>
+              </div>
+            </div>
+            <div style="margin-bottom: 1rem;">
+              <%= form.label :default_invoice_notes, "Default Invoice Notes", class: "block font-medium mb-1" %>
+              <%= form.rich_text_area :default_invoice_notes %>
+            </div>
+            <div>
+              <%= form.label :default_payment_instructions, "Default Payment Instructions", class: "block font-medium mb-1" %>
+              <%= form.rich_text_area :default_payment_instructions %>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem;">
+          <%= form.submit "Save Profile", class: "btn" %>
+          <%= link_to "Cancel", root_path, class: "btn btn-secondary" %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const individualRadio = document.querySelector('input[value="individual"]');
+    const businessRadio = document.querySelector('input[value="business"]');
+    const individualSection = document.querySelector('[data-entity-type="individual"]');
+    const businessSection = document.querySelector('[data-entity-type="business"]');
+
+    function toggleSections() {
+      if (individualRadio.checked) {
+        individualSection.style.display = 'block';
+        businessSection.style.display = 'none';
+      } else {
+        individualSection.style.display = 'none';
+        businessSection.style.display = 'block';
+      }
+    }
+
+    individualRadio.addEventListener('change', toggleSections);
+    businessRadio.addEventListener('change', toggleSections);
+  });
+</script>

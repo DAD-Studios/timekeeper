@@ -1,0 +1,38 @@
+<div class="line-item-row" style="display: grid; grid-template-columns: 3fr 1fr 1fr 1fr auto; gap: 1rem; align-items: end; padding: 1rem; border: 1px solid #e1e8ed; border-radius: 4px; margin-bottom: 1rem; background: white;">
+  <div>
+    <%= f.label :description, style: "display: block; font-weight: 500; margin-bottom: 0.25rem; font-size: 14px;" %>
+    <%= f.text_field :description, style: "width: 100%;" %>
+  </div>
+
+  <div>
+    <%= f.label :quantity, "Hours", style: "display: block; font-weight: 500; margin-bottom: 0.25rem; font-size: 14px;" %>
+    <%= f.number_field :quantity, step: 0.01, class: "line-item-quantity", style: "width: 100%;" %>
+  </div>
+
+  <div>
+    <%= f.label :rate, style: "display: block; font-weight: 500; margin-bottom: 0.25rem; font-size: 14px;" %>
+    <%= f.number_field :rate, step: 0.01, class: "line-item-rate", style: "width: 100%;" %>
+  </div>
+
+  <div>
+    <%= f.label :amount, "Amount", style: "display: block; font-weight: 500; margin-bottom: 0.25rem; font-size: 14px;" %>
+    <div style="padding: 0.5rem; background: #f5f7fa; border-radius: 4px; font-weight: 600; color: #5cb85c;">
+      <span class="line-item-amount">$<%= f.object.amount || 0 %></span>
+    </div>
+  </div>
+
+  <div>
+    <% if f.object.persisted? %>
+      <%= f.hidden_field :_destroy %>
+      <button type="button" class="remove-line-item" style="background: #dc3545; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-size: 14px; white-space: nowrap;" title="Remove" onclick="this.previousElementSibling.value='1'; this.closest('.line-item-row').style.display='none';">
+        <i class="bi bi-trash"></i>
+      </button>
+    <% else %>
+      <button type="button" class="remove-line-item" style="background: #dc3545; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-size: 14px; white-space: nowrap;" title="Remove">
+        <i class="bi bi-trash"></i>
+      </button>
+    <% end %>
+  </div>
+
+  <%= f.hidden_field :time_entry_id if f.object.time_entry_id %>
+</div>

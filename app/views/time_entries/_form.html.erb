@@ -1,0 +1,120 @@
+<%= form_with(model: time_entry, data: { controller: "form-disable new-entity project-select task-select" }) do |form| %>
+  <% if time_entry.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(time_entry.errors.count, "error") %> prohibited this time_entry from being saved:</h2>
+
+      <ul>
+        <% time_entry.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <% if time_entry.paid? %>
+    <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+      <strong><i class="bi bi-info-circle"></i> Note:</strong> This time entry is associated with a paid invoice. Only notes can be edited.
+    </div>
+  <% end %>
+
+  <!-- Client Section -->
+  <div>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <%= form.label :client_id %>
+      <% unless time_entry.paid? %>
+        <%= link_to "New Client", "#", data: { action: "click->new-entity#toggleClient" }, style: "font-size: 0.9em;" %>
+      <% end %>
+    </div>
+
+    <div data-new-entity-target="clientSelect">
+      <%= form.collection_select :client_id, @clients, :id, :name, { prompt: "Select a Client" }, { disabled: time_entry.paid?, data: { action: "change->project-select#filterProjects change->task-select#filterTasks", "project-select-target": "client", "task-select-target": "client" } } %>
+    </div>
+
+    <div data-new-entity-target="clientNew" class="hidden">
+      <%= form.text_field :new_client_name, placeholder: "Client Name" %>
+      <%= link_to "Use Existing", "#", data: { action: "click->new-entity#toggleClient" }, style: "font-size: 0.9em;" %>
+    </div>
+  </div>
+
+  <!-- Project Section -->
+  <div>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <%= form.label :project_id %>
+      <% unless time_entry.paid? %>
+        <%= link_to "New Project", "#", data: { action: "click->new-entity#toggleProject" }, style: "font-size: 0.9em;" %>
+      <% end %>
+    </div>
+
+    <div data-new-entity-target="projectSelect">
+      <% initial_projects = time_entry.client_id ? @projects.select { |p| p.client_id == time_entry.client_id } : [] %>
+      <%= form.select :project_id,
+          options_from_collection_for_select(initial_projects, :id, :name, time_entry.project_id),
+          { prompt: "Select a Project" },
+          { disabled: time_entry.paid?, data: { "project-select-target": "project", action: "change->task-select#filterTasks", "task-select-target": "project" } } %>
+    </div>
+
+    <div data-new-entity-target="projectNew" class="hidden">
+      <%= form.text_field :new_project_name, placeholder: "Project Name" %>
+      <%= form.number_field :new_project_rate, placeholder: "Hourly Rate", step: 0.01, min: 0 %>
+      <%= link_to "Use Existing", "#", data: { action: "click->new-entity#toggleProject" }, style: "font-size: 0.9em;" %>
+    </div>
+  </div>
+
+  <!-- Task Section -->
+  <div>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <%= form.label :task %>
+      <% unless time_entry.paid? %>
+        <%= link_to "New Task", "#", data: { action: "click->new-entity#toggleTask" }, style: "font-size: 0.9em;" %>
+      <% end %>
+    </div>
+
+    <div data-new-entity-target="taskSelect">
+      <select name="time_entry[existing_task]" data-task-select-target="taskDropdown" <%= 'disabled' if time_entry.paid? %>>
+        <option value="">Select an existing task</option>
+      </select>
+    </div>
+
+    <div data-new-entity-target="taskNew" class="hidden">
+      <%= form.text_field :task, placeholder: "Task Name", disabled: time_entry.paid?, data: { "form-disable-target": "field" } %>
+      <%= link_to "Use Existing", "#", data: { action: "click->new-entity#toggleTask" }, style: "font-size: 0.9em;" %>
+    </div>
+  </div>
+
+  <% if time_entry.persisted? %>
+    <!-- Show time entry details for existing entries -->
+    <div>
+      <%= form.label :start_time, "Start Time" %>
+      <p style="margin: 0.5rem 0;"><%= time_entry.start_time.strftime("%B %d, %Y at %I:%M %p") %></p>
+    </div>
+
+    <div>
+      <%= form.label :end_time, "End Time" %>
+      <p style="margin: 0.5rem 0;"><%= time_entry.end_time.strftime("%B %d, %Y at %I:%M %p") %></p>
+    </div>
+
+    <div>
+      <%= form.label :duration, "Duration" %>
+      <p style="margin: 0.5rem 0;"><%= sprintf('%.2f', time_entry.duration_in_hours) %> hours</p>
+    </div>
+
+    <div>
+      <%= form.label :rate, "Rate" %>
+      <p style="margin: 0.5rem 0;"><%= number_to_currency(time_entry.rate) %> / hour</p>
+    </div>
+
+    <div>
+      <%= form.label :earnings, "Earnings" %>
+      <p style="margin: 0.5rem 0;"><strong><%= number_to_currency(time_entry.earnings) %></strong></p>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :notes %>
+    <%= form.rich_text_area :notes, data: { "form-disable-target": "field" } %>
+  </div>
+
+  <div>
+    <%= form.submit time_entry.persisted? ? "Update Time Entry" : "Start Timer", data: { "form-disable-target": "submit" } %>
+  </div>
+<% end %>

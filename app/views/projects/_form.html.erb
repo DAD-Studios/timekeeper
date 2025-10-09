@@ -1,0 +1,43 @@
+<%= form_with(model: project, data: { controller: "new-entity" }) do |form| %>
+  <% if project.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(project.errors.count, "error") %> prohibited this project from being saved:</h2>
+
+      <ul>
+        <% project.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :name %>
+    <%= form.text_field :name %>
+  </div>
+
+  <div>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <%= form.label :client_id %>
+      <%= link_to "New Client", "#", data: { action: "click->new-entity#toggleClient" }, style: "font-size: 0.9em;" %>
+    </div>
+
+    <div data-new-entity-target="clientSelect">
+      <%= form.collection_select :client_id, @clients, :id, :name, { prompt: "Select a Client" } %>
+    </div>
+
+    <div data-new-entity-target="clientNew" class="hidden">
+      <%= form.text_field :new_client_name, placeholder: "Client Name" %>
+      <%= link_to "Use Existing", "#", data: { action: "click->new-entity#toggleClient" }, style: "font-size: 0.9em;" %>
+    </div>
+  </div>
+
+  <div>
+    <%= form.label :rate %>
+    <%= form.number_field :rate, step: 0.01 %>
+  </div>
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>

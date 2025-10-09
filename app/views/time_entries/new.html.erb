@@ -1,0 +1,18 @@
+<h1>Timer</h1>
+
+<% if @running_time_entry %>
+  <div class="timer-container" data-controller="timer" data-timer-start-time-value="<%= @running_time_entry.start_time.iso8601 %>" style="max-width: 600px; margin: 0 auto;">
+    <h2>Running Timer</h2>
+    <p><strong>Task:</strong> <%= @running_time_entry.task %></p>
+    <p><strong>Project:</strong> <%= @running_time_entry.project.name %></p>
+    <p><strong>Client:</strong> <%= @running_time_entry.client.name %></p>
+    <p><strong>Elapsed Time:</strong> <span data-timer-target="elapsed" style="font-size: 1.5rem; font-weight: bold;"></span></p>
+    <%= button_to stop_time_entry_path(@running_time_entry), method: :patch, class: "btn", style: "background: white; color: #5cb85c; border: 2px solid white; font-weight: 600;" do %>
+      <i class="bi bi-stop-circle"></i> Stop Timer
+    <% end %>
+  </div>
+<% else %>
+  <div class="card" style="max-width: 600px; margin: 0 auto;">
+    <%= render 'form', time_entry: @time_entry %>
+  </div>
+<% end %>

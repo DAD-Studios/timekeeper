@@ -1,0 +1,92 @@
+<h1>History</h1>
+
+<% @grouped_entries.each do |client, projects| %>
+  <% client_total = @client_totals[client.id] %>
+  <div class="mb-3" data-controller="collapsible">
+    <!-- Client Header (Collapsible) -->
+    <div class="client-header"
+         style="background: #5cb85c; color: white; padding: 1rem 1.5rem; border-radius: 6px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; margin-bottom: 0;"
+         data-action="click->collapsible#toggle">
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <i class="bi bi-chevron-right" data-collapsible-target="icon"></i>
+        <strong style="font-size: 16px;"><%= client.name %></strong>
+      </div>
+      <div style="display: flex; gap: 2rem; font-size: 14px;">
+        <span><i class="bi bi-list-task"></i> <%= client_total[:entries_count] %> entries</span>
+        <span><i class="bi bi-clock"></i> <%= Time.at(client_total[:duration]).utc.strftime("%H:%M:%S") %></span>
+        <span><i class="bi bi-currency-dollar"></i> <%= number_to_currency(client_total[:earnings]) %></span>
+      </div>
+    </div>
+
+    <!-- Client Content (Projects) -->
+    <div data-collapsible-target="content">
+      <% projects.each do |project, time_entries| %>
+        <div class="mt-0" data-controller="collapsible" style="margin-left: 0;">
+          <!-- Project Header (Collapsible) -->
+          <div class="project-header"
+               style="background: #f5f7fa; color: #2c3e50; padding: 0.875rem 1.5rem 0.875rem 3rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e1e8ed;"
+               data-action="click->collapsible#toggle">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <i class="bi bi-chevron-right" data-collapsible-target="icon" style="font-size: 12px;"></i>
+              <strong><%= project.name %></strong>
+              <span style="color: #5a6c7d; font-size: 13px; font-weight: 500; margin-left: 0.75rem;">
+                <%= number_to_currency(project.rate) %>/hr
+              </span>
+            </div>
+            <span style="font-size: 13px; color: #5a6c7d;">
+              <%= time_entries.count %> tasks
+            </span>
+          </div>
+
+          <!-- Project Tasks Table -->
+          <div data-collapsible-target="content">
+            <table style="margin-bottom: 0; border-radius: 0; border-top: none;">
+              <thead style="position: sticky; top: 0; z-index: 10;">
+                <tr>
+                  <th>Task</th>
+                  <th>Start Time</th>
+                  <th>End Time</th>
+                  <th>Duration</th>
+                  <th>Earnings</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% time_entries.each do |time_entry| %>
+                  <tr>
+                    <td data-label="Task"><%= time_entry.task %></td>
+                    <td data-label="Start Time"><%= time_entry.start_time&.strftime("%b %d, %Y %I:%M %p") %></td>
+                    <td data-label="End Time"><%= time_entry.end_time&.strftime("%b %d, %Y %I:%M %p") %></td>
+                    <td data-label="Duration"><%= Time.at(time_entry.duration_seconds).utc.strftime("%H:%M:%S") if time_entry.duration_seconds %></td>
+                    <td data-label="Earnings"><%= number_to_currency(time_entry.earnings) %></td>
+                    <td data-label="Status">
+                      <% if time_entry.invoice.present? && time_entry.invoice.paid? %>
+                        <span style="background: #d1ecf1; color: #0c5460; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 12px; font-weight: 500;">
+                          <i class="bi bi-cash-coin"></i> Paid
+                        </span>
+                      <% elsif time_entry.invoice.present? %>
+                        <span style="background: #d4edda; color: #155724; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 12px; font-weight: 500;">
+                          <i class="bi bi-check-circle"></i> Invoiced
+                        </span>
+                      <% else %>
+                        <span style="background: #fff3cd; color: #856404; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 12px; font-weight: 500;">
+                          <i class="bi bi-clock"></i> Unbilled
+                        </span>
+                      <% end %>
+                    </td>
+                    <td data-label="Actions">
+                      <%= link_to edit_time_entry_path(time_entry), title: "Edit Time Entry" do %>
+                        <i class="bi bi-pencil"></i>
+                      <% end %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

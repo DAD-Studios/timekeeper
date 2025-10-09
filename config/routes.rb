@@ -1,0 +1,34 @@
+Rails.application.routes.draw do
+  root "time_entries#new"
+
+  resources :time_entries do
+    member do
+      patch :stop
+    end
+  end
+
+  resources :projects
+
+  resource :profile, only: [:edit, :update]
+  resources :clients
+  resources :invoices do
+    member do
+      get :download_pdf
+      patch :mark_paid
+    end
+    resources :payments, only: [:create, :destroy], controller: 'invoice_payments'
+  end
+
+  resources :reports, only: [:index] do
+    collection do
+      get :daily
+      get :weekly
+      get :monthly
+    end
+  end
+
+  namespace :api do
+    resources :projects, only: [:index]
+    get 'tasks', to: 'time_entries#tasks'
+  end
+end

@@ -1,0 +1,171 @@
+<h1>Reports</h1>
+
+<div class="reports-grid">
+  <!-- Left Column: Calendar -->
+  <div class="calendar-column">
+    <div class="card">
+      <!-- Month Navigation -->
+      <div class="month-nav">
+        <%= link_to reports_path(month: @current_month.prev_month, selected_date: @selected_date), class: "btn btn-secondary nav-btn" do %>
+          <i class="bi bi-chevron-left"></i>
+        <% end %>
+        <h2><%= @current_month.strftime('%B %Y') %></h2>
+        <%= link_to reports_path(month: @current_month.next_month, selected_date: @selected_date), class: "btn btn-secondary nav-btn" do %>
+          <i class="bi bi-chevron-right"></i>
+        <% end %>
+      </div>
+
+      <!-- Calendar -->
+      <div class="calendar-grid">
+        <!-- Day Headers -->
+        <% %w[Sun Mon Tue Wed Thu Fri Sat].each do |day| %>
+          <div class="calendar-header"><%= day %></div>
+        <% end %>
+
+        <!-- Calendar Days -->
+        <% start_date = @current_month.beginning_of_month.beginning_of_week(:sunday) %>
+        <% end_date = @current_month.end_of_month.end_of_week(:sunday) %>
+        <% (start_date..end_date).each do |date| %>
+          <% is_current_month = date.month == @current_month.month %>
+          <% is_selected = date == @selected_date %>
+          <% is_today = date == Date.current %>
+          <% metrics = @day_metrics[date] %>
+
+          <%= link_to reports_path(month: @current_month, selected_date: date),
+              data: { turbo: false },
+              class: "calendar-day #{is_current_month ? 'current-month' : 'other-month'} #{is_selected ? 'selected' : ''} #{is_today ? 'today' : ''}" do %>
+            <div class="day-number">
+              <%= date.day %>
+            </div>
+            <% if metrics %>
+              <div class="day-metrics">
+                <div class="day-counts">
+                  <span><i class="bi bi-folder"></i> <%= metrics[:projects_count] %></span>
+                  <span><i class="bi bi-list-task"></i> <%= metrics[:tasks_count] %></span>
+                </div>
+                <div class="day-earnings">
+                  <%= number_to_currency(metrics[:earnings], precision: 0) %>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+
+      <!-- Legend -->
+      <div class="calendar-legend">
+        <div><i class="bi bi-folder"></i> Projects</div>
+        <div><i class="bi bi-list-task"></i> Tasks</div>
+        <div class="earnings-legend"><i class="bi bi-currency-dollar"></i> Earnings</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Column: Day Details -->
+  <div class="details-column">
+    <div class="card">
+      <div class="day-header">
+        <h2><%= @selected_date.strftime('%A, %B %d, %Y') %></h2>
+        <% if @selected_date == Date.current %>
+          <span class="today-badge">Today</span>
+        <% end %>
+      </div>
+
+      <!-- Day Summary -->
+      <div class="day-summary">
+        <div class="summary-card">
+          <div class="summary-label">Duration</div>
+          <div class="summary-value">
+            <%= Time.at(@selected_total_duration).utc.strftime('%H:%M:%S') %>
+          </div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Tasks</div>
+          <div class="summary-value">
+            <%= @selected_entries.count %>
+          </div>
+        </div>
+        <div class="summary-card earnings">
+          <div class="summary-label">Earnings</div>
+          <div class="summary-value">
+            <%= number_to_currency(@selected_total_earnings) %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Time Entries for Selected Day -->
+      <% if @selected_entries.any? %>
+        <h3 class="entries-title">Time Entries</h3>
+
+        <% @grouped_entries.each do |client, projects| %>
+          <% client_entries = projects.values.flatten %>
+          <% client_duration = client_entries.sum { |e| e.duration_seconds || 0 } %>
+          <% client_earnings = client_entries.sum { |e| e.earnings || 0 } %>
+
+          <div class="report-client-section" data-controller="collapsible">
+            <div class="report-client-header" data-action="click->collapsible#toggle">
+              <div class="client-info">
+                <i class="bi bi-chevron-down" data-collapsible-target="icon"></i>
+                <strong><%= client.name %></strong>
+              </div>
+              <div class="client-totals">
+                <span><i class="bi bi-clock"></i> <%= Time.at(client_duration).utc.strftime('%H:%M:%S') %></span>
+                <span class="earnings"><i class="bi bi-currency-dollar"></i> <%= number_to_currency(client_earnings) %></span>
+              </div>
+            </div>
+
+            <div data-collapsible-target="content">
+              <% projects.each do |project, entries| %>
+                <% project_duration = entries.sum { |e| e.duration_seconds || 0 } %>
+                <% project_earnings = entries.sum { |e| e.earnings || 0 } %>
+
+                <div class="report-project-section" data-controller="collapsible">
+                  <div class="report-project-header" data-action="click->collapsible#toggle">
+                    <div class="project-info">
+                      <i class="bi bi-chevron-down" data-collapsible-target="icon"></i>
+                      <%= project.name %>
+                      <span class="rate-badge"><%= number_to_currency(project.rate) %>/hr</span>
+                    </div>
+                    <div class="project-totals">
+                      <span><i class="bi bi-list-task"></i> <%= entries.count %> tasks</span>
+                      <span><i class="bi bi-clock"></i> <%= Time.at(project_duration).utc.strftime('%H:%M:%S') %></span>
+                      <span class="earnings"><%= number_to_currency(project_earnings) %></span>
+                    </div>
+                  </div>
+
+                  <div data-collapsible-target="content">
+                    <table class="report-tasks-table">
+                      <thead>
+                        <tr>
+                          <th>Task</th>
+                          <th>Time</th>
+                          <th>Duration</th>
+                          <th>Earnings</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <% entries.each do |entry| %>
+                          <tr>
+                            <td data-label="Task"><%= entry.task %></td>
+                            <td data-label="Time"><%= entry.start_time.strftime('%I:%M %p') %></td>
+                            <td data-label="Duration"><%= Time.at(entry.duration_seconds).utc.strftime('%H:%M:%S') if entry.duration_seconds %></td>
+                            <td data-label="Earnings"><%= number_to_currency(entry.earnings) %></td>
+                          </tr>
+                        <% end %>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="no-entries">
+          <i class="bi bi-calendar-x"></i>
+          <p>No time entries for this day</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

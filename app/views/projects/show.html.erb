@@ -1,0 +1,41 @@
+<div class="page-header">
+  <h1><%= @project.name %></h1>
+  <div class="actions">
+    <%= link_to 'Edit', edit_project_path(@project), class: "btn btn-secondary" %>
+    <%= link_to 'Back', projects_path, class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<div class="card">
+  <p><strong>Client:</strong> <%= @project.client.name %></p>
+  <p><strong>Rate:</strong> <%= number_to_currency(@project.rate) %></p>
+</div>
+
+<h2>Time Entry History</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Task</th>
+      <th>Start Time</th>
+      <th>End Time</th>
+      <th>Duration</th>
+      <th>Earnings</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @time_entries.each do |time_entry| %>
+      <tr>
+        <td><%= time_entry.task %></td>
+        <td><%= time_entry.start_time&.strftime("%Y-%m-%d %H:%M:%S") %></td>
+        <td><%= time_entry.end_time&.strftime("%Y-%m-%d %H:%M:%S") %></td>
+        <td><%= Time.at(time_entry.duration_seconds).utc.strftime("%H:%M:%S") if time_entry.duration_seconds %></td>
+        <td><%= number_to_currency(time_entry.earnings) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= paginate @time_entries %>
+

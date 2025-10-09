@@ -1,0 +1,49 @@
+<div class="page-header">
+  <h1>Invoices</h1>
+  <div class="actions">
+    <%= link_to "New Invoice", new_invoice_path, class: "btn" %>
+  </div>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Invoice #</th>
+      <th>Client</th>
+      <th>Date</th>
+      <th>Due Date</th>
+      <th>Total</th>
+      <th>Status</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @invoices.each do |invoice| %>
+      <tr>
+        <td data-label="Invoice #"><%= link_to invoice.invoice_number, invoice %></td>
+        <td data-label="Client"><%= invoice.client.name %></td>
+        <td data-label="Date"><%= invoice.invoice_date.strftime("%b %d, %Y") %></td>
+        <td data-label="Due Date"><%= invoice.due_date.strftime("%b %d, %Y") %></td>
+        <td data-label="Total"><%= number_to_currency(invoice.total) %></td>
+        <td data-label="Status">
+          <%= form_with(model: invoice, url: invoice_path(invoice), method: :patch, data: { controller: "form-disable", turbo: false }) do |f| %>
+            <%= f.select :status, Invoice.statuses.keys.map { |s| [s.titleize, s] }, {}, {
+              id: "invoice_status_#{invoice.id}",
+              style: "padding: 0.25rem 0.5rem; border-radius: 4px; border: 1px solid #e1e8ed; font-size: 13px;",
+              data: { action: "change->form-disable#submit" }
+            } %>
+          <% end %>
+        </td>
+        <td data-label="Actions">
+          <%= link_to invoice, title: "View Invoice" do %><i class="bi bi-eye"></i><% end %>
+          <%= link_to download_pdf_invoice_path(invoice), target: '_blank', title: "Download PDF" do %><i class="bi bi-file-pdf"></i><% end %>
+          <% unless invoice.paid? %>
+            <%= link_to edit_invoice_path(invoice), title: "Edit Invoice" do %><i class="bi bi-pencil"></i><% end %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= paginate @invoices %>

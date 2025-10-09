@@ -1,0 +1,36 @@
+<div class="page-header">
+  <h1>Clients</h1>
+  <div class="actions">
+    <%= link_to "New Client", new_client_path, class: "btn" %>
+  </div>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Business Name</th>
+      <th>Contact</th>
+      <th>Email</th>
+      <th>Phone</th>
+      <th>Invoices</th>
+      <th colspan="2"></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @clients.each do |client| %>
+      <tr>
+        <td data-label="Business Name"><%= link_to client.name, client %></td>
+        <td data-label="Contact"><%= client.contact_name %></td>
+        <td data-label="Email"><%= client.email %></td>
+        <td data-label="Phone"><%= client.phone %></td>
+        <td data-label="Invoices"><%= client.invoices.count %></td>
+        <td data-label="Actions">
+          <%= link_to client, title: "View Client" do %><i class="bi bi-eye"></i><% end %>
+          <%= link_to edit_client_path(client), title: "Edit Client" do %><i class="bi bi-pencil"></i><% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= paginate @clients %>

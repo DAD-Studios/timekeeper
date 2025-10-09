@@ -1,0 +1,74 @@
+<div class="page-header">
+  <h1><%= @client.name %></h1>
+  <div class="actions">
+    <%= link_to 'Edit', edit_client_path(@client), class: "btn btn-secondary" %>
+    <%= link_to 'Back', clients_path, class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+  <!-- Left Column: Contact Info -->
+  <div>
+    <div class="card">
+      <h2>Contact Information</h2>
+      <% if @client.contact_name.present? %>
+        <p style="margin-bottom: 0.5rem;">
+          <strong>Contact:</strong> <%= @client.contact_name %>
+        </p>
+      <% end %>
+      <% if @client.email.present? %>
+        <p style="margin-bottom: 0.5rem;">
+          <strong>Email:</strong> <%= @client.email %>
+        </p>
+      <% end %>
+      <% if @client.phone.present? %>
+        <p style="margin-bottom: 0.5rem;">
+          <strong>Phone:</strong> <%= @client.phone %>
+        </p>
+      <% end %>
+    </div>
+
+    <% if @client.notes.present? %>
+      <div class="card">
+        <h2>Notes</h2>
+        <%= @client.notes %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Right Column: Address -->
+  <div>
+    <% if @client.full_address.present? %>
+      <div class="card">
+        <h2>Address</h2>
+        <p style="white-space: pre-line; margin: 0;"><%= @client.full_address %></p>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<h2>Invoices</h2>
+<% if @client.invoices.any? %>
+  <table>
+    <thead>
+      <tr>
+        <th>Invoice #</th>
+        <th>Date</th>
+        <th>Total</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @client.invoices.order(created_at: :desc).each do |invoice| %>
+        <tr>
+          <td><%= link_to invoice.invoice_number, invoice %></td>
+          <td><%= invoice.invoice_date %></td>
+          <td><%= number_to_currency(invoice.total) %></td>
+          <td><%= invoice.status.titleize %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>No invoices yet.</p>
+<% end %>
