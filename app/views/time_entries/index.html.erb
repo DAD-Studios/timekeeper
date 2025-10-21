@@ -56,8 +56,8 @@
                 <% time_entries.each do |time_entry| %>
                   <tr>
                     <td data-label="Task"><%= time_entry.task %></td>
-                    <td data-label="Start Time"><%= time_entry.start_time&.strftime("%b %d, %Y %I:%M %p") %></td>
-                    <td data-label="End Time"><%= time_entry.end_time&.strftime("%b %d, %Y %I:%M %p") %></td>
+                    <td data-label="Start Time"><%= time_entry.rounded_start_time&.strftime("%b %d, %Y %I:%M %p") %></td>
+                    <td data-label="End Time"><%= time_entry.rounded_end_time&.strftime("%b %d, %Y %I:%M %p") %></td>
                     <td data-label="Duration"><%= Time.at(time_entry.duration_seconds).utc.strftime("%H:%M:%S") if time_entry.duration_seconds %></td>
                     <td data-label="Earnings"><%= number_to_currency(time_entry.earnings) %></td>
                     <td data-label="Status">

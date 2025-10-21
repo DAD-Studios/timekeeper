@@ -204,8 +204,8 @@
     </entry>
     <entry key="test/mailers/previews">
       <value>file://$MODULE_DIR$/test/mailers/previews</value>
-      <value>file:///home/joshua/projects/rails-crm/timekeeper/spec/mailers/previews</value>
-      <value>file:///home/joshua/projects/rails-crm/timekeeper/test/mailers/previews</value>
+      <value>file:///home/joshua/projects/timekeeper/spec/mailers/previews</value>
+      <value>file:///home/joshua/projects/timekeeper/test/mailers/previews</value>
     </entry>
     <entry key="tmp">
       <value>file://$MODULE_DIR$/tmp</value>

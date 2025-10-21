@@ -40,6 +40,14 @@ class TimeEntry < ApplicationRecord
     invoice.present?
   end
 
+  def rounded_start_time
+    round_to_5_minutes(start_time)
+  end
+
+  def rounded_end_time
+    round_to_5_minutes(end_time)
+  end
+
   private
 
   def no_other_running_timer
@@ -67,7 +75,22 @@ class TimeEntry < ApplicationRecord
   end
 
   def calculate_duration
-    self.duration_seconds = (end_time - start_time).to_i
+    rounded_start = round_to_5_minutes(start_time)
+    rounded_end = round_to_5_minutes(end_time)
+    self.duration_seconds = (rounded_end - rounded_start).to_i
+  end
+
+  def round_to_5_minutes(time)
+    return time unless time.present?
+
+    # Get the number of seconds since the start of the minute
+    seconds = time.sec + (time.min * 60)
+
+    # Round to nearest 5 minutes (300 seconds)
+    rounded_seconds = (seconds / 300.0).round * 300
+
+    # Create a new time with rounded minutes/seconds
+    time.change(min: 0, sec: 0) + rounded_seconds.seconds
   end
 
   def calculate_earnings

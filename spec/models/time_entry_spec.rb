@@ -38,6 +38,51 @@ RSpec.describe TimeEntry, type: :model do
     end
   end
 
+  describe "#round_to_5_minutes" do
+    let(:time_entry) { TimeEntry.new(task: "Test", project: project, client: client) }
+
+    it "rounds times to nearest 5 minutes" do
+      # Test rounding down
+      time = Time.parse("2024-01-01 10:02:00")
+      rounded = time_entry.send(:round_to_5_minutes, time)
+      expect(rounded.strftime("%H:%M")).to eq("10:00")
+
+      # Test rounding up
+      time = Time.parse("2024-01-01 10:03:00")
+      rounded = time_entry.send(:round_to_5_minutes, time)
+      expect(rounded.strftime("%H:%M")).to eq("10:05")
+
+      # Test exact 5 minute mark
+      time = Time.parse("2024-01-01 10:05:00")
+      rounded = time_entry.send(:round_to_5_minutes, time)
+      expect(rounded.strftime("%H:%M")).to eq("10:05")
+
+      # Test rounding with seconds
+      time = Time.parse("2024-01-01 10:07:30")
+      rounded = time_entry.send(:round_to_5_minutes, time)
+      expect(rounded.strftime("%H:%M")).to eq("10:10")
+    end
+  end
+
+  describe "#calculate_duration with rounding" do
+    it "calculates duration based on rounded times" do
+      # Start at 10:02:30 (rounds to 10:05)
+      # End at 10:33:00 (rounds to 10:35)
+      # Expected duration: 30 minutes = 1800 seconds
+      time_entry = TimeEntry.create!(
+        task: "Test rounding",
+        project: project,
+        client: client,
+        start_time: Time.parse("2024-01-01 10:02:30"),
+        end_time: Time.parse("2024-01-01 10:33:00"),
+        status: 'completed'
+      )
+
+      expect(time_entry.duration_seconds).to eq(1800) # 30 minutes
+      expect(time_entry.duration_in_hours).to be_within(0.01).of(0.5) # 30/60 hours
+    end
+  end
+
   describe "#calculate_totals_if_completed" do
     let(:time_entry) do
       TimeEntry.new(

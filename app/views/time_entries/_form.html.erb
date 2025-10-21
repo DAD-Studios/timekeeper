@@ -84,13 +84,13 @@
   <% if time_entry.persisted? %>
     <!-- Show time entry details for existing entries -->
     <div>
-      <%= form.label :start_time, "Start Time" %>
-      <p style="margin: 0.5rem 0;"><%= time_entry.start_time.strftime("%B %d, %Y at %I:%M %p") %></p>
+      <%= form.label :start_time, "Start Time (rounded to 5 min)" %>
+      <p style="margin: 0.5rem 0;"><%= time_entry.rounded_start_time.strftime("%B %d, %Y at %I:%M %p") %></p>
     </div>
 
     <div>
-      <%= form.label :end_time, "End Time" %>
-      <p style="margin: 0.5rem 0;"><%= time_entry.end_time.strftime("%B %d, %Y at %I:%M %p") %></p>
+      <%= form.label :end_time, "End Time (rounded to 5 min)" %>
+      <p style="margin: 0.5rem 0;"><%= time_entry.rounded_end_time.strftime("%B %d, %Y at %I:%M %p") %></p>
     </div>
 
     <div>
