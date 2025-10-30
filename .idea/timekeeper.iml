@@ -23,6 +23,11 @@
       <excludeFolder url="file://$MODULE_DIR$/tmp" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/bundle" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/cache" />
+      <excludeFolder url="file://$MODULE_DIR$/public/assets" />
+      <excludeFolder url="file://$MODULE_DIR$/storage/aw" />
+      <excludeFolder url="file://$MODULE_DIR$/storage/lo" />
+      <excludeFolder url="file://$MODULE_DIR$/storage/wr" />
+      <excludeFolder url="file://$MODULE_DIR$/storage/y2" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

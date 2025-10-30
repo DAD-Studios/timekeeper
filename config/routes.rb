@@ -30,6 +30,12 @@ Rails.application.routes.draw do
   namespace :api do
     resources :projects, only: [:index]
     get 'tasks', to: 'time_entries#tasks'
+
+    namespace :v1 do
+      resources :clients do
+        resources :unbilled_time_entries, only: [:index]
+      end
+    end
   end
 
   # Custom error pages

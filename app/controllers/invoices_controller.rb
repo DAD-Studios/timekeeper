@@ -14,28 +14,6 @@ class InvoicesController < ApplicationController
 
     respond_to do |format|
       format.html
-      format.json do
-        if params[:client_id]
-          client = Client.find(params[:client_id])
-          @time_entries = client.time_entries.unbilled.includes(:project)
-          render json: {
-            time_entries: @time_entries.map do |te|
-              {
-                id: te.id,
-                task: te.task,
-                project_name: te.project&.name,
-                start_time: te.start_time&.strftime('%m/%d %I:%M%p'),
-                end_time: te.end_time&.strftime('%I:%M%p'),
-                duration_hours: te.duration_in_hours.round(2),
-                rate: te.rate,
-                earnings: te.earnings
-              }
-            end
-          }
-        else
-          render json: { time_entries: [] }
-        end
-      end
     end
   end
 
@@ -90,12 +68,6 @@ class InvoicesController < ApplicationController
   end
 
   def destroy
-    # Check if this is the most recent invoice and adjust next_invoice_number
-    profile = Profile.first
-    if profile && @invoice == Invoice.order(created_at: :desc).first
-      profile.decrement!(:next_invoice_number)
-    end
-
     @invoice.destroy
     redirect_to invoices_path, notice: 'Invoice was successfully deleted.'
   end

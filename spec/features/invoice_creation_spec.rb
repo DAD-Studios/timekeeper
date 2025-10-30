@@ -36,11 +36,10 @@ RSpec.feature "Invoice Creation", type: :feature, js: true do
     # Select client
     select client.name, from: "Client"
 
-    # Give JavaScript time to load time entries
-    sleep 1
+    # Wait for the time entries section to become visible
+    expect(page).to have_css('[data-invoice-form-target="timeEntriesSection"]', visible: true)
 
-    # Verify we can see the time entries section
-    expect(page).to have_content("Select Time Entries")
+    # Verify we can see the time entries
     expect(page).to have_content("Task 1")
     expect(page).to have_content("Task 2")
 

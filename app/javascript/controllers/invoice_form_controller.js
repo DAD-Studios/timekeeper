@@ -26,7 +26,7 @@ export default class extends Controller {
     }
 
     try {
-      const response = await fetch(`/invoices/new?client_id=${clientId}`, {
+      const response = await fetch(`/api/v1/clients/${clientId}/unbilled_time_entries`, {
         headers: {
           'Accept': 'application/json'
         }

@@ -21,9 +21,7 @@
   <div>
     <div style="display: flex; justify-content: space-between; align-items: center;">
       <%= form.label :client_id %>
-      <% unless time_entry.paid? %>
-        <%= link_to "New Client", "#", data: { action: "click->new-entity#toggleClient" }, style: "font-size: 0.9em;" %>
-      <% end %>
+      <%= new_entity_link("Client") %>
     </div>
 
     <div data-new-entity-target="clientSelect">
@@ -40,9 +38,7 @@
   <div>
     <div style="display: flex; justify-content: space-between; align-items: center;">
       <%= form.label :project_id %>
-      <% unless time_entry.paid? %>
-        <%= link_to "New Project", "#", data: { action: "click->new-entity#toggleProject" }, style: "font-size: 0.9em;" %>
-      <% end %>
+      <%= new_entity_link("Project") %>
     </div>
 
     <div data-new-entity-target="projectSelect">
@@ -64,9 +60,7 @@
   <div>
     <div style="display: flex; justify-content: space-between; align-items: center;">
       <%= form.label :task %>
-      <% unless time_entry.paid? %>
-        <%= link_to "New Task", "#", data: { action: "click->new-entity#toggleTask" }, style: "font-size: 0.9em;" %>
-      <% end %>
+      <%= new_entity_link("Task") %>
     </div>
 
     <div data-new-entity-target="taskSelect">

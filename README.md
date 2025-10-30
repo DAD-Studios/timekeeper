@@ -64,8 +64,8 @@ A professional time tracking and invoicing application built with Ruby on Rails 
 - **JavaScript**: Stimulus.js controllers
 - **Styling**: Custom SCSS with mobile-first responsive design, Bootstrap Icons
 - **PDF Generation**: Prawn
-- **Testing**: RSpec (152 passing tests)
-- **Rich Text**: Action Text (Trix editor)
+- **Testing**: RSpec (260 passing tests)
+Rich Text: Lexxy (built on Lexical and Action Text)
 - **File Storage**: Active Storage
 
 ## 📋 Prerequisites
@@ -172,11 +172,7 @@ brew install --cask google-chrome
 
 **Note**: Non-JavaScript feature tests will run without Chrome. Only tests marked with `js: true` require a browser.
 
-**Test Coverage**: 260+ tests
-- Models: 75+ tests (payments, cascade deletion, associations)
-- Controllers: 78+ tests (CRUD, payments, error handling)
-- Feature tests: 10+ tests (UI workflows with JavaScript)
-- Request specs: Additional integration tests
+**Test Coverage**: 260 passing tests
 
 ## 📁 Project Structure
 

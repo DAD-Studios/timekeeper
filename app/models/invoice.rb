@@ -30,6 +30,7 @@ class Invoice < ApplicationRecord
   before_validation :set_invoice_number, on: :create
   before_save :manage_paid_date
   after_save :calculate_totals_after_save
+  after_destroy :decrement_next_invoice_number, if: :most_recent?
 
   scope :overdue, -> { where(status: :sent).where('due_date < ?', Date.current) }
   scope :unpaid, -> { where(status: [:sent, :overdue, :partially_paid]) }
@@ -76,6 +77,15 @@ class Invoice < ApplicationRecord
   end
 
   private
+
+  def most_recent?
+    self == Invoice.order(created_at: :desc).first
+  end
+
+  def decrement_next_invoice_number
+    profile = Profile.first
+    profile.decrement!(:next_invoice_number) if profile
+  end
 
   def set_invoice_number
     return if invoice_number.present?
