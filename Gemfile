@@ -36,7 +36,7 @@ gem "bootsnap", require: false
 group :development, :test do
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
   gem "rspec-rails", "~> 6.0"
-  gem "shoulda-matchers", "~> 5.0"
+  gem "shoulda-matchers", "~> 6.5"
   gem "factory_bot_rails", "~> 6.0"
   gem 'brakeman'
   gem 'rubocop-rails-omakase'
