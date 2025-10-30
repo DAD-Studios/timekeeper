@@ -58,7 +58,7 @@ A professional time tracking and invoicing application built with Ruby on Rails 
 ## 🛠️ Technology Stack
 
 - **Ruby**: 3.4.5
-- **Rails**: 8.0.4
+- **Rails**: 8.1.1
 - **Database**: SQLite (development), PostgreSQL (production-ready)
 - **Asset Pipeline**: Propshaft
 - **JavaScript**: Stimulus.js controllers
@@ -71,7 +71,7 @@ Rich Text: Lexxy (built on Lexical and Action Text)
 ## 📋 Prerequisites
 
 - Ruby 3.4.5 or higher
-- Rails 8.0.4 or higher
+- Rails 8.1.1 or higher
 - SQLite3 (development)
 - Node.js 18+ (for asset compilation)
 - Bundler 2.0+
