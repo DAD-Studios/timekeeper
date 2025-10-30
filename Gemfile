@@ -35,9 +35,9 @@ gem "bootsnap", require: false
 
 group :development, :test do
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
-  gem "rspec-rails", "~> 6.0"
-  gem "shoulda-matchers", "~> 5.0"
-  gem "factory_bot_rails", "~> 6.0"
+  gem "rspec-rails"
+  gem "shoulda-matchers"
+  gem "factory_bot_rails"
   gem 'brakeman'
   gem 'rubocop-rails-omakase'
 end
@@ -58,8 +58,8 @@ gem "kaminari"
 gem "prawn"
 gem "prawn-table"
 
-gem "image_processing", "~> 1.14"
+gem "image_processing"
 
-gem "lexxy", "~> 0.1.10.beta"
+gem 'lexxy', '~> 0.1.4.beta'
 
 
