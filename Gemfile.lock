@@ -183,7 +183,7 @@ GEM
       kaminari-core (= 1.2.2)
     kaminari-core (1.2.2)
     language_server-protocol (3.17.0.5)
-    lexxy (0.1.10.beta)
+    lexxy (0.1.13.beta)
       rails (>= 8.0.2)
     lint_roller (1.1.0)
     logger (1.7.0)
@@ -447,7 +447,7 @@ DEPENDENCIES
   importmap-rails
   jbuilder
   kaminari
-  lexxy (~> 0.1.10.beta)
+  lexxy (~> 0.1.13.beta)
   prawn
   prawn-table
   propshaft

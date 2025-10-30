@@ -60,6 +60,6 @@ gem "prawn-table"
 
 gem "image_processing", "~> 1.14"
 
-gem "lexxy", "~> 0.1.10.beta"
+gem "lexxy", "~> 0.1.13.beta"
 
 
