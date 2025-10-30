@@ -47,4 +47,4 @@
 !/app/assets/builds/.keep
 
 start-rails.sh
-.idea*
+.idea/*

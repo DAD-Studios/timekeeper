@@ -38,8 +38,8 @@ group :development, :test do
   gem "rspec-rails"
   gem "shoulda-matchers"
   gem "factory_bot_rails"
-  gem 'brakeman'
-  gem 'rubocop-rails-omakase'
+  gem "brakeman"
+  gem "rubocop-rails-omakase"
 end
 
 group :development do
@@ -60,6 +60,6 @@ gem "prawn-table"
 
 gem "image_processing"
 
-gem 'lexxy', '~> 0.1.4.beta'
+gem "lexxy", "~> 0.1.4.beta"
 
 
