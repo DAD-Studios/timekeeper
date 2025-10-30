@@ -60,7 +60,7 @@ RSpec.describe ProfilesController, type: :controller do
 
         it "renders the edit template" do
           patch :update, params: { profile: { email: "invalid" } }
-          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response).to have_http_status(:unprocessable_content)
         end
       end
     end
@@ -88,7 +88,7 @@ RSpec.describe ProfilesController, type: :controller do
 
         it "renders the edit template" do
           patch :update, params: { profile: { entity_type: :business, email: "invalid" } }
-          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response).to have_http_status(:unprocessable_content)
         end
       end
     end

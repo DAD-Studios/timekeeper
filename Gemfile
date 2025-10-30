@@ -47,7 +47,6 @@ end
 group :test do
   gem "capybara"
   gem "selenium-webdriver"
-  gem "webdrivers" # Added webdrivers gem
   gem "rails-controller-testing"
 end
 

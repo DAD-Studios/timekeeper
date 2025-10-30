@@ -31,4 +31,9 @@ Rails.application.routes.draw do
     resources :projects, only: [:index]
     get 'tasks', to: 'time_entries#tasks'
   end
+
+  # Custom error pages
+  match '/404', to: 'errors#not_found', via: :all
+  match '/422', to: 'errors#unprocessable_content', via: :all
+  match '/500', to: 'errors#internal_server_error', via: :all
 end

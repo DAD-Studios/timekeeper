@@ -1,5 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe "clients/update.html.erb", type: :view do
-  pending "add some examples to (or delete) #{__FILE__}"
+  it "renders the update view" do
+    assign(:client, create(:client))
+    render
+    expect(rendered).to match(/Clients#update/)
+  end
 end

@@ -1,5 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe "clients/destroy.html.erb", type: :view do
-  pending "add some examples to (or delete) #{__FILE__}"
+  it "renders the destroy view" do
+    assign(:client, create(:client))
+    render
+    expect(rendered).to match(/Clients#destroy/)
+  end
 end

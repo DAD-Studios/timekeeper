@@ -21,7 +21,7 @@ class ClientsController < ApplicationController
     if @client.save
       redirect_to clients_url, notice: 'Client was successfully created.'
     else
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 
@@ -29,13 +29,21 @@ class ClientsController < ApplicationController
     if @client.update(client_params)
       redirect_to clients_url, notice: 'Client was successfully updated.'
     else
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 
   def destroy
+    # Capture counts before deletion
+    projects_count = @client.projects.count
+    time_entries_count = @client.time_entries.count
+    invoices_count = @client.invoices.count
+    client_name = @client.name
+
     @client.destroy
-    redirect_to clients_url, notice: 'Client was successfully destroyed.'
+
+    redirect_to clients_url,
+      notice: "Client '#{client_name}' and all associated data were successfully deleted (#{projects_count} projects, #{time_entries_count} time entries, #{invoices_count} invoices)."
   end
 
   private

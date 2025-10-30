@@ -1,0 +1,27 @@
+<div class="page-header">
+  <h1>404 - Page Not Found</h1>
+</div>
+
+<div class="card" style="text-align: center; padding: 3rem;">
+  <div style="font-size: 80px; color: #5cb85c; margin-bottom: 1rem;">
+    <i class="bi bi-search"></i>
+  </div>
+
+  <h2 style="margin-bottom: 1rem; color: #2c3e50;">The page you're looking for doesn't exist</h2>
+
+  <p style="color: #5a6c7d; font-size: 16px; margin-bottom: 2rem;">
+    The page you requested could not be found. It may have been moved or deleted.
+  </p>
+
+  <div style="display: flex; gap: 1rem; justify-content: center;">
+    <%= link_to 'Go to Home', root_path, class: "btn" %>
+    <%= link_to 'Go Back', 'javascript:history.back()', class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<% if Rails.env.development? && @exception %>
+  <div class="card" style="margin-top: 2rem; background: #f8f9fa;">
+    <h3 style="color: #dc3545; margin-bottom: 1rem;">Development Error Details</h3>
+    <pre style="background: #fff; padding: 1rem; border-radius: 4px; overflow-x: auto;"><%= @exception.message %></pre>
+  </div>
+<% end %>

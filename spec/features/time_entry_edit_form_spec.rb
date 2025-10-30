@@ -16,19 +16,19 @@ RSpec.feature "Time Entry Edit Form", type: :feature do
     project: project,
     task: "Test Task",
     status: 'completed',
-    start_time: Time.new(2025, 10, 8, 9, 0, 0),
-    end_time: Time.new(2025, 10, 8, 11, 30, 0)
+    start_time: Time.utc(2025, 10, 8, 9, 0, 0),
+    end_time: Time.utc(2025, 10, 8, 11, 30, 0)
   ) }
 
-  scenario "editing an existing unpaid time entry shows time details and Update button", :skip do
+  scenario "editing an existing unpaid time entry shows time details and Update button" do
     visit edit_time_entry_path(time_entry)
 
     # Should show time entry details
     expect(page).to have_content("Start Time")
-    expect(page).to have_content("October 08, 2025 at 09:00 AM")
+    expect(page).to have_content("Rounded to 5 minutes: October 08, 2025 at 09:00 AM")
 
     expect(page).to have_content("End Time")
-    expect(page).to have_content("October 08, 2025 at 11:30 AM")
+    expect(page).to have_content("Rounded to 5 minutes: October 08, 2025 at 11:30 AM")
 
     expect(page).to have_content("Duration")
     expect(page).to have_content("2.50 hours")
@@ -48,7 +48,7 @@ RSpec.feature "Time Entry Edit Form", type: :feature do
     expect(page).to have_field("time_entry_project_id", disabled: false)
   end
 
-  scenario "editing a paid time entry shows time details with disabled fields", :skip do
+  scenario "editing a paid time entry shows time details with disabled fields" do
     paid_invoice = Invoice.create!(
       client: client,
       invoice_number: "INV-001",
@@ -86,10 +86,10 @@ RSpec.feature "Time Entry Edit Form", type: :feature do
     expect(page).to have_field("time_entry_project_id", disabled: true)
 
     # Notes should be editable
-    expect(page).to have_field("time_entry_notes", disabled: false)
+    expect(page).to have_css("lexxy-editor")
   end
 
-  scenario "creating a new time entry shows Start Timer button", :skip do
+  scenario "creating a new time entry shows Start Timer button" do
     visit new_time_entry_path
 
     # Should have Start Timer button, not Update

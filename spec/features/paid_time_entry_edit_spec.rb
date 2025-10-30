@@ -28,7 +28,7 @@ RSpec.feature "Paid Time Entry Editing", type: :feature do
     paid_date: Date.current
   ) }
 
-  scenario "user sees disabled fields when editing paid time entry", :skip do
+  scenario "user sees disabled fields when editing paid time entry" do
     InvoiceLineItem.create!(
       invoice: paid_invoice,
       time_entry: time_entry,
@@ -49,7 +49,7 @@ RSpec.feature "Paid Time Entry Editing", type: :feature do
     expect(page).to have_field("time_entry_project_id", disabled: true)
 
     # Notes field should be enabled
-    expect(page).to have_field("time_entry_notes", disabled: false)
+    expect(page).to have_css("lexxy-editor")
 
     # Should not show "New Client", "New Project", or "New Task" links
     expect(page).not_to have_link("New Client")
@@ -57,7 +57,7 @@ RSpec.feature "Paid Time Entry Editing", type: :feature do
     expect(page).not_to have_link("New Task")
   end
 
-  scenario "user can edit all fields for unpaid time entry", :skip do
+  scenario "user can edit all fields for unpaid time entry" do
     visit edit_time_entry_path(time_entry)
 
     # Should not show warning message

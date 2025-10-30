@@ -1,5 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe "profiles/edit.html.erb", type: :view do
-  pending "add some examples to (or delete) #{__FILE__}"
+  it "renders the edit view" do
+    assign(:profile, create(:profile))
+    render
+    expect(rendered).to match(/Profile Settings/)
+  end
 end

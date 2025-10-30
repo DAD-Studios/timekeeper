@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.feature "Invoice Creation", type: :feature do
+RSpec.feature "Invoice Creation", type: :feature, js: true do
   let!(:profile) { Profile.create!(
     entity_type: 'individual',
     first_name: "Test",
@@ -57,8 +57,7 @@ RSpec.feature "Invoice Creation", type: :feature do
     # Submit the form
     click_button "Create Invoice"
 
-    # Verify success
-    expect(page).to have_content("Invoice was successfully created")
+    expect(page).to have_css('.notice', text: 'Invoice was successfully created', visible: true)
 
     # Verify the invoice has the line items
     invoice = Invoice.last
@@ -78,11 +77,14 @@ RSpec.feature "Invoice Creation", type: :feature do
     # Click add manual line item
     click_button "Add Manual Line Item"
 
-    # Fill in the line item
-    within all('.line-item-row').last do
-      fill_in "Description", with: "Custom service"
-      fill_in "Hours", with: "5"
-      fill_in "Rate", with: "150"
+    # Wait for the line item to be added by JavaScript
+    expect(page).to have_css('.line-item-row', wait: 5)
+
+    # Fill in the line item using name-based selectors since labels aren't properly associated
+    within find('.line-item-row:last-of-type') do
+      find('input[name*="[description]"]').set("Custom service")
+      find('input[name*="[quantity]"]').set("5")
+      find('input[name*="[rate]"]').set("150")
     end
 
     fill_in "invoice_invoice_date", with: Date.current

@@ -55,7 +55,11 @@
               <tbody>
                 <% time_entries.each do |time_entry| %>
                   <tr>
-                    <td data-label="Task"><%= time_entry.task %></td>
+                    <td data-label="Task">
+                      <%= link_to time_entry_path(time_entry), style: "color: #2c3e50; text-decoration: none; font-weight: 500;" do %>
+                        <%= time_entry.task %>
+                      <% end %>
+                    </td>
                     <td data-label="Start Time"><%= time_entry.rounded_start_time&.strftime("%b %d, %Y %I:%M %p") %></td>
                     <td data-label="End Time"><%= time_entry.rounded_end_time&.strftime("%b %d, %Y %I:%M %p") %></td>
                     <td data-label="Duration"><%= Time.at(time_entry.duration_seconds).utc.strftime("%H:%M:%S") if time_entry.duration_seconds %></td>
@@ -76,8 +80,8 @@
                       <% end %>
                     </td>
                     <td data-label="Actions">
-                      <%= link_to edit_time_entry_path(time_entry), title: "Edit Time Entry" do %>
-                        <i class="bi bi-pencil"></i>
+                      <%= link_to time_entry_path(time_entry), title: "View Details" do %>
+                        <i class="bi bi-eye"></i>
                       <% end %>
                     </td>
                   </tr>

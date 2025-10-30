@@ -1,5 +1,5 @@
 class InvoicesController < ApplicationController
-  before_action :set_invoice, only: [:show, :edit, :update, :mark_paid, :download_pdf]
+  before_action :set_invoice, only: [:show, :edit, :update, :mark_paid, :download_pdf, :destroy]
 
   def index
     @invoices = Invoice.includes(:client, :client).order(created_at: :desc).page(params[:page]).per(25)
@@ -61,7 +61,7 @@ class InvoicesController < ApplicationController
       redirect_to invoice_path(@invoice), notice: 'Invoice was successfully updated.'
     else
       @clients = Client.all
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 
@@ -72,7 +72,7 @@ class InvoicesController < ApplicationController
       redirect_to invoice_path(@invoice), notice: 'Invoice was successfully created.'
     else
       @clients = Client.all
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 
@@ -87,6 +87,17 @@ class InvoicesController < ApplicationController
               filename: "#{@invoice.invoice_number}.pdf",
               type: 'application/pdf',
               disposition: 'inline'
+  end
+
+  def destroy
+    # Check if this is the most recent invoice and adjust next_invoice_number
+    profile = Profile.first
+    if profile && @invoice == Invoice.order(created_at: :desc).first
+      profile.decrement!(:next_invoice_number)
+    end
+
+    @invoice.destroy
+    redirect_to invoices_path, notice: 'Invoice was successfully deleted.'
   end
 
   private

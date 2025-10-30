@@ -27,7 +27,7 @@ class ProjectsController < ApplicationController
     if @project.save
       redirect_to projects_url, notice: "Project was successfully created."
     else
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 
@@ -35,13 +35,19 @@ class ProjectsController < ApplicationController
     if @project.update(project_params)
       redirect_to projects_url, notice: "Project was successfully updated."
     else
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 
   def destroy
+    # Capture counts before deletion
+    time_entries_count = @project.time_entries.count
+    project_name = @project.name
+
     @project.destroy
-    redirect_to projects_url, notice: "Project was successfully destroyed."
+
+    redirect_to projects_url,
+      notice: "Project '#{project_name}' and #{time_entries_count} associated time entry/entries were successfully deleted."
   end
 
   private

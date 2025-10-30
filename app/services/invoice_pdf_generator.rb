@@ -58,7 +58,7 @@ class InvoicePdfGenerator
         pdf.text "Due: #{@invoice.due_date.strftime('%B %d, %Y')}", size: 9, align: :right
       end
 
-      pdf.move_down 40
+      pdf.move_down 75
 
       # Group line items by project
       grouped_items = @invoice.line_items.includes(:time_entry).group_by do |item|
@@ -113,21 +113,23 @@ class InvoicePdfGenerator
         pdf.text "Total: $#{sprintf('%.2f', @invoice.total)}", align: :right, style: :bold, size: 14
       end
 
-      # Notes
-      if @invoice.notes.present?
+      # Notes - use invoice notes if present, otherwise use profile default
+      notes = @invoice.notes.presence || @profile&.default_invoice_notes
+      if notes.present?
         pdf.move_down 30
         pdf.text "Notes:", style: :bold, size: 12
         pdf.move_down 5
-        notes_text = @invoice.notes.to_plain_text
+        notes_text = notes.to_plain_text
         pdf.text notes_text, size: 10
       end
 
-      # Payment Instructions
-      if @invoice.payment_instructions.present?
+      # Payment Instructions - use invoice payment_instructions if present, otherwise use profile default
+      payment_instructions = @invoice.payment_instructions.presence || @profile&.default_payment_instructions
+      if payment_instructions.present?
         pdf.move_down 20
         pdf.text "Payment Instructions:", style: :bold, size: 12
         pdf.move_down 5
-        payment_text = @invoice.payment_instructions.to_plain_text
+        payment_text = payment_instructions.to_plain_text
         pdf.text payment_text, size: 10
       end
     end

@@ -1,7 +1,7 @@
 class Client < ApplicationRecord
   has_many :projects, dependent: :destroy
   has_many :time_entries, dependent: :destroy
-  has_many :invoices, dependent: :restrict_with_error
+  has_many :invoices, dependent: :destroy
 
   has_rich_text :notes
 

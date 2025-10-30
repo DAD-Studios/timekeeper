@@ -1,5 +1,5 @@
 class TimeEntriesController < ApplicationController
-  before_action :set_time_entry, only: %i[edit update destroy stop]
+  before_action :set_time_entry, only: %i[show edit update destroy stop]
   before_action :set_select_collections, only: %i[new edit create update]
 
   def index
@@ -38,6 +38,8 @@ class TimeEntriesController < ApplicationController
     @running_time_entry = TimeEntry.running.first
   end
 
+  def show; end
+
   def edit; end
 
   def create
@@ -74,7 +76,7 @@ class TimeEntriesController < ApplicationController
       redirect_to root_path, notice: 'Timer started successfully.'
     else
       @running_time_entry = TimeEntry.running.first
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 
@@ -85,13 +87,13 @@ class TimeEntriesController < ApplicationController
       if @time_entry.update(allowed_params)
         redirect_to time_entries_path, notice: "Time entry notes were successfully updated."
       else
-        render :edit, status: :unprocessable_entity
+        render :edit, status: :unprocessable_content
       end
     else
       if @time_entry.update(time_entry_params)
         redirect_to time_entries_path, notice: "Time entry was successfully updated."
       else
-        render :edit, status: :unprocessable_entity
+        render :edit, status: :unprocessable_content
       end
     end
   end
@@ -118,6 +120,6 @@ class TimeEntriesController < ApplicationController
   end
 
   def time_entry_params
-    params.require(:time_entry).permit(:task, :notes, :project_id, :client_id)
+    params.require(:time_entry).permit(:task, :notes, :project_id, :client_id, :start_time, :end_time)
   end
 end

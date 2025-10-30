@@ -8,6 +8,7 @@
     <% if @invoice.draft? || @invoice.sent? %>
       <%= button_to 'Mark as Paid', mark_paid_invoice_path(@invoice), method: :patch, class: "btn" %>
     <% end %>
+    <%= button_to 'Delete', invoice_path(@invoice), method: :delete, class: "btn btn-danger", data: { turbo_confirm: 'Are you sure you want to delete this invoice?' } %>
     <%= link_to 'Back', invoices_path, class: "btn btn-secondary" %>
   </div>
 </div>
@@ -58,48 +59,49 @@
   </div>
 </div>
 
-<% profile = Profile.first %>
-<div class="invoice-layout" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
-  <div class="from-section">
-    <% if profile %>
-      <% if profile.show_logo && profile.logo.attached? %>
-        <%= image_tag profile.logo, style: "max-width: 150px; margin-bottom: 1rem;" %>
+<div class="card">
+  <% profile = Profile.first %>
+  <div class="invoice-layout" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 1.5rem;">
+    <div class="from-section">
+      <% if profile %>
+        <% if profile.show_logo && profile.logo.attached? %>
+          <%= image_tag profile.logo, style: "max-width: 150px; margin-bottom: 1rem;" %>
+        <% end %>
+        <p style="margin: 0;"><strong><%= profile.display_name %></strong></p>
+        <% if profile.individual? && profile.title.present? %>
+          <p style="margin: 0; color: #666;"><%= profile.title %></p>
+        <% end %>
+        <% if profile.email.present? %>
+          <p style="margin: 0;"><%= profile.email %></p>
+        <% end %>
+        <% if profile.phone.present? %>
+          <p style="margin: 0;"><%= profile.phone %></p>
+        <% end %>
+        <% if profile.full_address.present? %>
+          <p style="margin-top: 0.5rem; white-space: pre-line;"><%= profile.full_address %></p>
+        <% end %>
       <% end %>
-      <p style="margin: 0;"><strong><%= profile.display_name %></strong></p>
-      <% if profile.individual? && profile.title.present? %>
-        <p style="margin: 0; color: #666;"><%= profile.title %></p>
+    </div>
+
+    <div class="to-section">
+      <h3 style="margin-top: 0;">Bill To</h3>
+      <p style="margin: 0;"><strong><%= @invoice.client.name %></strong></p>
+      <% if @invoice.client.contact_name.present? %>
+        <p style="margin: 0;">Attn: <%= @invoice.client.contact_name %></p>
       <% end %>
-      <% if profile.email.present? %>
-        <p style="margin: 0;"><%= profile.email %></p>
+      <% if @invoice.client.email.present? %>
+        <p style="margin: 0;"><%= @invoice.client.email %></p>
       <% end %>
-      <% if profile.phone.present? %>
-        <p style="margin: 0;"><%= profile.phone %></p>
+      <% if @invoice.client.phone.present? %>
+        <p style="margin: 0;"><%= @invoice.client.phone %></p>
       <% end %>
-      <% if profile.full_address.present? %>
-        <p style="margin-top: 0.5rem; white-space: pre-line;"><%= profile.full_address %></p>
+      <% if @invoice.client.full_address.present? %>
+        <p style="margin-top: 0.5rem; white-space: pre-line;"><%= @invoice.client.full_address %></p>
       <% end %>
-    <% end %>
+    </div>
   </div>
 
-  <div class="to-section">
-    <h3 style="margin-top: 0;">Bill To</h3>
-    <p style="margin: 0;"><strong><%= @invoice.client.name %></strong></p>
-    <% if @invoice.client.contact_name.present? %>
-      <p style="margin: 0;">Attn: <%= @invoice.client.contact_name %></p>
-    <% end %>
-    <% if @invoice.client.email.present? %>
-      <p style="margin: 0;"><%= @invoice.client.email %></p>
-    <% end %>
-    <% if @invoice.client.phone.present? %>
-      <p style="margin: 0;"><%= @invoice.client.phone %></p>
-    <% end %>
-    <% if @invoice.client.full_address.present? %>
-      <p style="margin-top: 0.5rem; white-space: pre-line;"><%= @invoice.client.full_address %></p>
-    <% end %>
-  </div>
-</div>
-
-<h2>Line Items</h2>
+  <h2 style="margin-bottom: 1rem;">Line Items</h2>
 
 <%
   # Group line items by project
@@ -110,7 +112,7 @@
 
 <% grouped_items.each do |project, items| %>
   <% if project %>
-    <h3 style="margin-top: 2rem; margin-bottom: 0.5rem; color: #2c3e50; font-size: 16px;">
+    <h3 style="margin-top: 1rem; margin-bottom: 0.5rem; color: #2c3e50; font-size: 16px;">
       <i class="bi bi-folder"></i> <%= project.name %>
     </h3>
   <% elsif grouped_items.keys.length > 1 %>
@@ -150,35 +152,150 @@
 <% end %>
 
 <!-- Invoice Totals -->
-<table style="margin-top: 2rem;">
-  <tfoot>
-    <tr>
-      <td colspan="3" style="text-align: right;"><strong>Subtotal:</strong></td>
-      <td><strong><%= number_to_currency(@invoice.subtotal) %></strong></td>
-    </tr>
+<div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
+  <div style="min-width: 300px;">
+    <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #e1e8ed;">
+      <span><strong>Subtotal:</strong></span>
+      <span><strong><%= number_to_currency(@invoice.subtotal) %></strong></span>
+    </div>
     <% if @invoice.discount_amount.to_f > 0 %>
-      <tr>
-        <td colspan="3" style="text-align: right;"><strong>Discount:</strong></td>
-        <td><strong>-<%= number_to_currency(@invoice.discount_amount) %></strong></td>
-      </tr>
+      <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #e1e8ed;">
+        <span><strong>Discount:</strong></span>
+        <span><strong>-<%= number_to_currency(@invoice.discount_amount) %></strong></span>
+      </div>
     <% end %>
-    <tr style="font-size: 18px;">
-      <td colspan="3" style="text-align: right;"><strong>Total:</strong></td>
-      <td><strong><%= number_to_currency(@invoice.total) %></strong></td>
-    </tr>
-  </tfoot>
-</table>
-
-<% if @invoice.notes.present? %>
-  <h3>Notes</h3>
-  <div style="background: #f5f7fa; padding: 1rem; border-radius: 4px;">
-    <%= @invoice.notes %>
+    <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; font-size: 18px; border-top: 2px solid #2c3e50;">
+      <span><strong>Total:</strong></span>
+      <span><strong><%= number_to_currency(@invoice.total) %></strong></span>
+    </div>
+    <% if @invoice.amount_paid > 0 %>
+      <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-top: 1px solid #e1e8ed; color: #5cb85c;">
+        <span><strong>Amount Paid:</strong></span>
+        <span><strong>-<%= number_to_currency(@invoice.amount_paid) %></strong></span>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; font-size: 18px; border-top: 2px solid #2c3e50; color: <%= @invoice.amount_due > 0 ? '#dc3545' : '#5cb85c' %>;">
+        <span><strong>Amount Due:</strong></span>
+        <span><strong><%= number_to_currency(@invoice.amount_due) %></strong></span>
+      </div>
+    <% end %>
   </div>
-<% end %>
+</div>
 
-<% if @invoice.payment_instructions.present? %>
-  <h3>Payment Instructions</h3>
-  <div style="background: #f5f7fa; padding: 1rem; border-radius: 4px;">
-    <%= @invoice.payment_instructions %>
+  <% if @invoice.notes.present? %>
+    <h3 style="margin-top: 2rem;">Notes</h3>
+    <div style="background: #f5f7fa; padding: 1rem; border-radius: 4px;">
+      <%= @invoice.notes %>
+    </div>
+  <% end %>
+
+  <% if @invoice.payment_instructions.present? %>
+    <h3 style="margin-top: 1.5rem;">Payment Instructions</h3>
+    <div style="background: #f5f7fa; padding: 1rem; border-radius: 4px;">
+      <%= @invoice.payment_instructions %>
+    </div>
+  <% end %>
+</div>
+
+<!-- Payments Section -->
+<% if @invoice.payments.any? || !@invoice.paid? %>
+  <div class="card" style="margin-top: 2rem;">
+    <h2 style="margin-bottom: 1rem;">Payments</h2>
+
+    <% if @invoice.payments.any? %>
+      <table style="margin-bottom: 2rem;">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Method</th>
+            <th>Reference</th>
+            <th>Amount</th>
+            <th>Notes</th>
+            <th style="width: 100px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @invoice.payments.order(payment_date: :desc).each do |payment| %>
+            <tr>
+              <td><%= payment.payment_date.strftime("%B %d, %Y") %></td>
+              <td><%= payment.payment_method&.titleize %></td>
+              <td><%= payment.reference_number %></td>
+              <td><%= number_to_currency(payment.amount) %></td>
+              <td>
+                <% if payment.notes.present? %>
+                  <div class="rich-text-content">
+                    <%= payment.notes %>
+                  </div>
+                <% end %>
+              </td>
+              <td>
+                <%= button_to 'Delete', invoice_payment_path(@invoice, payment),
+                    method: :delete,
+                    class: "btn btn-danger btn-sm",
+                    style: "padding: 0.25rem 0.5rem; font-size: 12px;",
+                    data: { turbo_confirm: 'Are you sure you want to delete this payment?' } %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
+
+    <% unless @invoice.paid? %>
+      <div style="background: #f5f7fa; padding: 1.5rem; border-radius: 4px;">
+        <h3 style="margin-top: 0; margin-bottom: 1rem;">Record a Payment</h3>
+
+        <%= form_with(model: [:invoice, @invoice.payments.build], url: invoice_payments_path(@invoice), local: true) do |f| %>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1rem;">
+            <div>
+              <%= f.label :amount, 'Payment Amount', style: 'display: block; margin-bottom: 0.5rem; font-weight: 600;' %>
+              <%= f.number_field :amount,
+                  step: 0.01,
+                  placeholder: "Enter amount (max: #{number_to_currency(@invoice.amount_due)})",
+                  style: 'width: 100%; padding: 0.5rem; border: 1px solid #e1e8ed; border-radius: 4px;',
+                  max: @invoice.amount_due %>
+              <div style="margin-top: 0.25rem; font-size: 12px; color: #666;">
+                <%= link_to 'Full Payment', '#',
+                    onclick: "document.getElementById('invoice_payment_amount').value = #{@invoice.amount_due}; return false;",
+                    style: 'color: #0d6efd; text-decoration: none;' %>
+                (Amount due: <%= number_to_currency(@invoice.amount_due) %>)
+              </div>
+            </div>
+
+            <div>
+              <%= f.label :payment_date, 'Payment Date', style: 'display: block; margin-bottom: 0.5rem; font-weight: 600;' %>
+              <%= f.date_field :payment_date,
+                  value: Date.current,
+                  style: 'width: 100%; padding: 0.5rem; border: 1px solid #e1e8ed; border-radius: 4px;' %>
+            </div>
+
+            <div>
+              <%= f.label :payment_method, 'Payment Method', style: 'display: block; margin-bottom: 0.5rem; font-weight: 600;' %>
+              <%= f.select :payment_method,
+                  InvoicePayment.payment_methods.keys.map { |method| [method.titleize, method] }.sort_by { |label, _| label },
+                  { prompt: 'Select payment method' },
+                  { style: 'width: 100%; padding: 0.5rem; border: 1px solid #e1e8ed; border-radius: 4px;' } %>
+            </div>
+
+            <div>
+              <%= f.label :reference_number, 'Reference Number (optional)', style: 'display: block; margin-bottom: 0.5rem; font-weight: 600;' %>
+              <%= f.text_field :reference_number,
+                  placeholder: 'Transaction ID, check number, etc.',
+                  style: 'width: 100%; padding: 0.5rem; border: 1px solid #e1e8ed; border-radius: 4px;' %>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 1rem;">
+            <%= f.label :notes, 'Notes (optional)', style: 'display: block; margin-bottom: 0.5rem; font-weight: 600;' %>
+            <%= f.rich_text_area :notes,
+                placeholder: 'Additional payment notes...',
+                style: 'width: 100%;' %>
+          </div>
+
+          <div style="display: flex; gap: 1rem;">
+            <%= f.submit 'Record Payment', class: 'btn', style: 'background: #5cb85c; color: white;' %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
   </div>
 <% end %>

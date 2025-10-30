@@ -1,4 +1,4 @@
-<%= form_with(model: time_entry, data: { controller: "form-disable new-entity project-select task-select" }) do |form| %>
+<%= form_with(model: time_entry, data: { controller: "#{ "form-disable" unless time_entry.paid? } new-entity project-select task-select" }) do |form| %>
   <% if time_entry.errors.any? %>
     <div style="color: red">
       <h2><%= pluralize(time_entry.errors.count, "error") %> prohibited this time_entry from being saved:</h2>
@@ -84,13 +84,27 @@
   <% if time_entry.persisted? %>
     <!-- Show time entry details for existing entries -->
     <div>
-      <%= form.label :start_time, "Start Time (rounded to 5 min)" %>
-      <p style="margin: 0.5rem 0;"><%= time_entry.rounded_start_time.strftime("%B %d, %Y at %I:%M %p") %></p>
+      <%= form.label :start_time, "Start Time" %>
+      <% if time_entry.paid? %>
+        <p style="margin: 0.5rem 0;"><%= time_entry.start_time.strftime("%B %d, %Y at %I:%M %p") %></p>
+      <% else %>
+        <%= form.datetime_local_field :start_time, value: time_entry.start_time&.strftime("%Y-%m-%dT%H:%M"), data: { "form-disable-target": "field" } %>
+        <p style="margin: 0.25rem 0; font-size: 0.85em; color: #666;">
+          <i class="bi bi-info-circle"></i> Rounded to 5 minutes: <%= time_entry.rounded_start_time.strftime("%B %d, %Y at %I:%M %p") %>
+        </p>
+      <% end %>
     </div>
 
     <div>
-      <%= form.label :end_time, "End Time (rounded to 5 min)" %>
-      <p style="margin: 0.5rem 0;"><%= time_entry.rounded_end_time.strftime("%B %d, %Y at %I:%M %p") %></p>
+      <%= form.label :end_time, "End Time" %>
+      <% if time_entry.paid? %>
+        <p style="margin: 0.5rem 0;"><%= time_entry.end_time.strftime("%B %d, %Y at %I:%M %p") %></p>
+      <% else %>
+        <%= form.datetime_local_field :end_time, value: time_entry.end_time&.strftime("%Y-%m-%dT%H:%M"), data: { "form-disable-target": "field" } %>
+        <p style="margin: 0.25rem 0; font-size: 0.85em; color: #666;">
+          <i class="bi bi-info-circle"></i> Rounded to 5 minutes: <%= time_entry.rounded_end_time.strftime("%B %d, %Y at %I:%M %p") %>
+        </p>
+      <% end %>
     </div>
 
     <div>
@@ -111,7 +125,7 @@
 
   <div>
     <%= form.label :notes %>
-    <%= form.rich_text_area :notes, data: { "form-disable-target": "field" } %>
+    <%= form.rich_text_area :notes %>
   </div>
 
   <div>

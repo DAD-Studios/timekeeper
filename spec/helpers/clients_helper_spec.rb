@@ -11,5 +11,7 @@ require 'rails_helper'
 #   end
 # end
 RSpec.describe ClientsHelper, type: :helper do
-  pending "add some examples to (or delete) #{__FILE__}"
+  it "is a module" do
+    expect(ClientsHelper).to be_a(Module)
+  end
 end

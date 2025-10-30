@@ -1,0 +1,29 @@
+<div class="page-header">
+  <h1>500 - Internal Server Error</h1>
+</div>
+
+<div class="card" style="text-align: center; padding: 3rem;">
+  <div style="font-size: 80px; color: #dc3545; margin-bottom: 1rem;">
+    <i class="bi bi-exclamation-triangle"></i>
+  </div>
+
+  <h2 style="margin-bottom: 1rem; color: #2c3e50;">Something went wrong</h2>
+
+  <p style="color: #5a6c7d; font-size: 16px; margin-bottom: 2rem;">
+    We're sorry, but something went wrong on our end. The error has been logged and we'll look into it.
+  </p>
+
+  <div style="display: flex; gap: 1rem; justify-content: center;">
+    <%= link_to 'Go to Home', root_path, class: "btn" %>
+    <%= link_to 'Go Back', 'javascript:history.back()', class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<% if Rails.env.development? && @exception %>
+  <div class="card" style="margin-top: 2rem; background: #f8f9fa;">
+    <h3 style="color: #dc3545; margin-bottom: 1rem;">Development Error Details</h3>
+    <pre style="background: #fff; padding: 1rem; border-radius: 4px; overflow-x: auto; white-space: pre-wrap;"><%= @exception.message %>
+
+<%= @exception.backtrace.first(10).join("\n") if @exception.backtrace %></pre>
+  </div>
+<% end %>

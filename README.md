@@ -26,10 +26,13 @@ A professional time tracking and invoicing application built with Ruby on Rails 
 ### Invoicing
 - **Smart Creation**: Select unbilled time entries or add manual line items
 - **Project Grouping**: Line items automatically grouped by project
-- **Status Management**: Draft → Sent → Viewed → Paid → Overdue
+- **Status Management**: Draft → Sent → Viewed → Paid → Partially Paid → Overdue → Cancelled
 - **PDF Generation**: Professional invoices with logo and branding
-- **Payment Tracking**: Record partial and full payments
-- **Automatic Totals**: Subtotal, discounts, and total calculation
+- **Payment Tracking**: Record partial and full payments with automatic status updates
+- **Multiple Payment Methods**: Bank Wire, Cash, CashApp, Check, Paypal, Stripe, Venmo, Zelle
+- **Payment History**: View all payments with dates, methods, references, and notes
+- **Automatic Totals**: Subtotal, discounts, amount paid, and amount due calculations
+- **Invoice Deletion**: Delete invoices with automatic invoice number adjustment
 
 ### Profile & Branding
 - **Entity Types**: Individual or Business profiles
@@ -50,11 +53,12 @@ A professional time tracking and invoicing application built with Ruby on Rails 
 - **One Timer Rule**: Only one timer can run at a time
 - **Automatic Calculations**: Earnings, duration, and totals auto-calculated
 - **Automatic Paid Dates**: Set when invoice marked as paid
+- **Sequential Invoice Numbers**: Deleting the most recent invoice reverts the next invoice number
 
 ## 🛠️ Technology Stack
 
 - **Ruby**: 3.4.5
-- **Rails**: 8.0.3
+- **Rails**: 8.0.4
 - **Database**: SQLite (development), PostgreSQL (production-ready)
 - **Asset Pipeline**: Propshaft
 - **JavaScript**: Stimulus.js controllers
@@ -66,10 +70,11 @@ A professional time tracking and invoicing application built with Ruby on Rails 
 
 ## 📋 Prerequisites
 
-- Ruby 3.4.5
-- Rails 8.0.3
+- Ruby 3.4.5 or higher
+- Rails 8.0.4 or higher
 - SQLite3 (development)
-- Node.js (for asset compilation)
+- Node.js 18+ (for asset compilation)
+- Bundler 2.0+
 
 ## 🚀 Getting Started
 
@@ -113,6 +118,8 @@ A professional time tracking and invoicing application built with Ruby on Rails 
 
 ## 🧪 Testing
 
+### Running Tests
+
 Run the complete test suite:
 
 ```bash
@@ -131,15 +138,45 @@ bundle exec rspec spec/controllers
 # Requests only
 bundle exec rspec spec/requests
 
+# Feature tests (requires Chrome)
+bundle exec rspec spec/features
+
 # With documentation format
 bundle exec rspec --format documentation
 ```
 
-**Test Coverage**: 152 passing tests (98% pass rate)
-- Models: 44 tests
-- Controllers: 35 tests
-- Requests: 45 tests
-- Additional: 28 tests
+### Chrome Installation for Feature Tests
+
+Feature tests that require JavaScript (marked with `js: true`) need Google Chrome and ChromeDriver. These are automatically managed by Selenium, but Chrome must be installed.
+
+**For WSL/Ubuntu:**
+```bash
+# Download Chrome .deb package directly
+cd /tmp
+wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+
+# Install Chrome (this will also install dependencies)
+sudo apt update
+sudo apt install -y ./google-chrome-stable_current_amd64.deb
+
+# Verify installation
+google-chrome --version
+```
+
+**Note for WSL Users**: Chrome requires a display server. If you encounter issues running feature tests, the tests will gracefully skip with a clear message. All non-JavaScript tests work without Chrome.
+
+**For macOS:**
+```bash
+brew install --cask google-chrome
+```
+
+**Note**: Non-JavaScript feature tests will run without Chrome. Only tests marked with `js: true` require a browser.
+
+**Test Coverage**: 260+ tests
+- Models: 75+ tests (payments, cascade deletion, associations)
+- Controllers: 78+ tests (CRUD, payments, error handling)
+- Feature tests: 10+ tests (UI workflows with JavaScript)
+- Request specs: Additional integration tests
 
 ## 📁 Project Structure
 
@@ -148,12 +185,15 @@ app/
 ├── controllers/         # Application controllers
 │   ├── clients_controller.rb
 │   ├── invoices_controller.rb
+│   ├── invoice_payments_controller.rb
 │   ├── projects_controller.rb
 │   ├── time_entries_controller.rb
 │   └── reports_controller.rb
 ├── models/             # ActiveRecord models
 │   ├── client.rb
 │   ├── invoice.rb
+│   ├── invoice_line_item.rb
+│   ├── invoice_payment.rb
 │   ├── project.rb
 │   ├── time_entry.rb
 │   └── profile.rb
@@ -198,6 +238,14 @@ app/
 - Line items (from time entries or manual)
 - Automatic totals calculation
 - PDF generation
+- Has many payments
+
+### InvoicePayment
+- Payment amount, date, method
+- Payment methods: Bank Wire, Cash, CashApp, Check, Paypal, Stripe, Venmo, Zelle
+- Reference number and notes
+- Belongs to invoice
+- Automatically updates invoice status
 
 ### Profile
 - Entity type (individual/business)
@@ -321,29 +369,163 @@ rails db:migrate
 rails server -e production
 ```
 
-## 📝 Usage Examples
+## 📝 Usage Guide
 
-### Track Time
-1. Navigate to Timer (home page)
-2. Select client, project, and task
-3. Click "Start Timer"
-4. Click "Stop" when done
-5. View in History page
+### Getting Started Workflow
 
-### Create Invoice
-1. Navigate to Invoices → New Invoice
-2. Select client
-3. Choose unbilled time entries OR add manual line items
-4. Set invoice date and due date
-5. Add notes and payment instructions (optional)
-6. Create invoice
-7. Download PDF or mark as sent
+#### 1. Set Up Your Profile
+1. Navigate to **Profile** (top navigation)
+2. Choose entity type: **Individual** or **Business**
+3. Fill in your information:
+   - Business name / Your name
+   - Contact details (email, phone)
+   - Address information
+4. Upload your logo (optional but recommended for professional invoices)
+5. Configure invoice settings:
+   - Invoice prefix (e.g., "INV-")
+   - Starting invoice number
+   - Default payment terms
 
-### Update Invoice Status
-1. From invoice index or show page
-2. Use status dropdown
-3. Automatically saves on change
-4. Paid status sets paid_date automatically
+#### 2. Add Your First Client
+1. Navigate to **Clients** → **New Client**
+2. Enter business information:
+   - Client/Company name
+   - Contact person (first name, last name)
+   - Email and phone
+   - Address
+3. Add notes about the client (optional)
+4. Save the client
+
+#### 3. Create Projects
+1. Navigate to **Projects** → **New Project**
+2. Select the client from dropdown
+3. Enter project name
+4. Set hourly rate for this project
+5. Save the project
+
+#### 4. Track Your Time
+
+**Using the Live Timer:**
+1. From any page, use the timer widget at the top
+2. Select:
+   - Client
+   - Project (automatically filtered by selected client)
+   - Task description
+3. Click **Start Timer**
+4. The timer runs and displays elapsed time
+5. Click **Stop** when finished
+6. Time entry is automatically saved
+
+**Manual Time Entry:**
+1. Navigate to **History** → **New Time Entry**
+2. Select client and project
+3. Enter task description
+4. Set start time and end time
+5. Add notes (optional)
+6. Save - duration and earnings are calculated automatically
+
+#### 5. Create and Send Invoices
+
+**Create Invoice from Time Entries:**
+1. Navigate to **Invoices** → **New Invoice**
+2. Select a client
+3. The system loads all **unbilled** time entries for that client
+4. Review and select time entries to include
+5. Time entries are automatically grouped by project
+6. Add invoice details:
+   - Invoice date (defaults to today)
+   - Due date
+   - Apply discount if needed
+   - Add notes and payment instructions
+7. Click **Create Invoice**
+
+**Create Manual Invoice:**
+1. Navigate to **Invoices** → **New Invoice**
+2. Select a client
+3. Add line items manually:
+   - Description
+   - Hours/Quantity
+   - Rate per hour
+4. Add invoice details
+5. Create invoice
+
+**Download PDF:**
+1. View the invoice
+2. Click **Download PDF**
+3. Professional PDF generated with your branding
+
+#### 6. Record Payments
+
+**Record a Full Payment:**
+1. Open the invoice
+2. Scroll to **Payments** section
+3. Click **Full Payment** link to auto-fill the amount
+4. Select payment method (Bank Wire, Cash, CashApp, Check, Paypal, Stripe, Venmo, or Zelle)
+5. Enter payment date
+6. Add reference number (e.g., check number, transaction ID)
+7. Add notes (optional)
+8. Click **Record Payment**
+9. Invoice status automatically updates to **Paid**
+
+**Record a Partial Payment:**
+1. Open the invoice
+2. In the **Payments** section, enter the partial amount
+3. Select payment method and date
+4. Add reference and notes
+5. Click **Record Payment**
+6. Invoice status updates to **Partially Paid**
+7. Amount Due is automatically updated
+8. Repeat to record additional payments until fully paid
+
+**View Payment History:**
+- All payments are displayed in a table showing:
+  - Payment date
+  - Payment method
+  - Reference number
+  - Amount
+  - Notes
+- Delete payments if needed (recalculates totals automatically)
+
+#### 7. Monitor Your Business
+
+**View Reports:**
+1. Navigate to **Reports**
+2. Toggle between:
+   - **Daily View**: See earnings by day
+   - **Weekly View**: Track weekly performance
+   - **Monthly View**: Monthly earnings overview
+3. Use the interactive calendar to navigate dates
+4. View status breakdown: Unbilled, Invoiced, Paid
+
+**Check Invoice Status:**
+1. Navigate to **Invoices**
+2. View all invoices with color-coded statuses:
+   - Gray: Draft
+   - Blue: Sent/Viewed
+   - Yellow: Partially Paid
+   - Green: Paid
+   - Red: Overdue
+3. Click any invoice to view details
+
+### Common Tasks
+
+**Edit a Time Entry:**
+- Only **unbilled** and **invoiced** entries can be fully edited
+- **Paid** entries: only notes can be edited (data integrity protection)
+
+**Update Invoice Status:**
+- Use the status dropdown on the invoice page
+- Changes save automatically
+- Status updates are tracked
+
+**Delete an Invoice:**
+- Navigate to invoice
+- Click **Delete** button
+- If it's the most recent invoice, the next invoice number is automatically adjusted
+
+**Stop a Running Timer:**
+- Click **Stop** in the timer widget
+- Or navigate to a different timer and start it (stops the previous one automatically)
 
 ## 🐛 Troubleshooting
 
@@ -397,6 +579,6 @@ For questions or issues:
 
 ---
 
-**Version**: 1.1.0
+**Version**: 1.3.0
 **Last Updated**: October 2025
-**Status**: Production Ready ✅ | Mobile-First Responsive ✅
+**Status**: Production Ready ✅ | Mobile-First Responsive ✅ | Full Payment Tracking ✅

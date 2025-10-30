@@ -1,5 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe "clients/create.html.erb", type: :view do
-  pending "add some examples to (or delete) #{__FILE__}"
+  it "renders the create view" do
+    assign(:client, Client.new)
+    render
+    expect(rendered).to match(/Clients#create/)
+  end
 end
