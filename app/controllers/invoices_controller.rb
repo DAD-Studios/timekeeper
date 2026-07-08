@@ -1,5 +1,5 @@
 class InvoicesController < ApplicationController
-  before_action :set_invoice, only: [:show, :edit, :update, :mark_paid, :download_pdf, :destroy]
+  before_action :set_invoice, only: [ :show, :edit, :update, :mark_paid, :download_pdf, :destroy ]
 
   def index
     @invoices = Invoice.includes(:client, :client).order(created_at: :desc).page(params[:page]).per(25)
@@ -20,7 +20,7 @@ class InvoicesController < ApplicationController
   def edit
     @invoice = Invoice.find(params[:id])
     if @invoice.paid?
-      redirect_to invoice_path(@invoice), alert: 'Cannot edit a paid invoice.'
+      redirect_to invoice_path(@invoice), alert: "Cannot edit a paid invoice."
       return
     end
     @clients = Client.all
@@ -30,13 +30,13 @@ class InvoicesController < ApplicationController
     @invoice = Invoice.find(params[:id])
 
     # Allow status-only updates even for paid invoices
-    if @invoice.paid? && invoice_params.keys.sort != ['status']
-      redirect_to invoice_path(@invoice), alert: 'Cannot edit a paid invoice. Only status can be changed.'
+    if @invoice.paid? && invoice_params.keys.sort != [ "status" ]
+      redirect_to invoice_path(@invoice), alert: "Cannot edit a paid invoice. Only status can be changed."
       return
     end
 
     if @invoice.update(invoice_params)
-      redirect_to invoice_path(@invoice), notice: 'Invoice was successfully updated.'
+      redirect_to invoice_path(@invoice), notice: "Invoice was successfully updated."
     else
       @clients = Client.all
       render :edit, status: :unprocessable_content
@@ -47,7 +47,7 @@ class InvoicesController < ApplicationController
     @invoice = Invoice.new(invoice_params)
 
     if @invoice.save
-      redirect_to invoice_path(@invoice), notice: 'Invoice was successfully created.'
+      redirect_to invoice_path(@invoice), notice: "Invoice was successfully created."
     else
       @clients = Client.all
       render :new, status: :unprocessable_content
@@ -56,20 +56,20 @@ class InvoicesController < ApplicationController
 
   def mark_paid
     @invoice.mark_as_paid!
-    redirect_to invoice_path(@invoice), notice: 'Invoice marked as paid.'
+    redirect_to invoice_path(@invoice), notice: "Invoice marked as paid."
   end
 
   def download_pdf
     pdf = InvoicePdfGenerator.new(@invoice).generate
     send_data pdf.render,
               filename: "#{@invoice.invoice_number}.pdf",
-              type: 'application/pdf',
-              disposition: 'inline'
+              type: "application/pdf",
+              disposition: "inline"
   end
 
   def destroy
     @invoice.destroy
-    redirect_to invoices_path, notice: 'Invoice was successfully deleted.'
+    redirect_to invoices_path, notice: "Invoice was successfully deleted."
   end
 
   private
@@ -81,6 +81,6 @@ class InvoicesController < ApplicationController
   def invoice_params
     params.require(:invoice).permit(:client_id, :client_id, :invoice_date, :due_date, :status,
                                    :tax_rate, :discount_amount, :notes, :payment_instructions,
-                                   line_items_attributes: [:id, :time_entry_id, :description, :quantity, :rate, :_destroy])
+                                   line_items_attributes: [ :id, :time_entry_id, :description, :quantity, :rate, :_destroy ])
   end
 end

@@ -73,7 +73,7 @@ puts "Creating sample invoices..."
     client: client,
     invoice_date: Date.current - (i * 15).days,
     due_date: Date.current + (30 - (i * 15)).days,
-    status: [:draft, :sent].sample
+    status: [ :draft, :sent ].sample
   )
 
   invoice.line_items.create!([

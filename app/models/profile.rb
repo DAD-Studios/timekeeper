@@ -32,7 +32,7 @@ class Profile < ApplicationRecord
     [
       address_line1,
       address_line2,
-      [city, state, zip_code].compact.join(', '),
+      [ city, state, zip_code ].compact.join(", "),
       country
     ].compact.reject(&:blank?).join("\n")
   end

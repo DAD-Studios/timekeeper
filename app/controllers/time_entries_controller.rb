@@ -21,7 +21,7 @@ class TimeEntriesController < ApplicationController
     @time_entry = TimeEntryCreator.new(time_entry_params).create
 
     if @time_entry.persisted?
-      redirect_to root_path, notice: 'Timer started successfully.'
+      redirect_to root_path, notice: "Timer started successfully."
     else
       @running_time_entry = TimeEntry.running.first
       render :new, status: :unprocessable_content
@@ -53,7 +53,7 @@ class TimeEntriesController < ApplicationController
 
   def stop
     @time_entry.stop!
-    redirect_to root_path, notice: 'Timer stopped successfully.'
+    redirect_to root_path, notice: "Timer stopped successfully."
   end
 
   private

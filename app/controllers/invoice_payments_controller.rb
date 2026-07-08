@@ -5,7 +5,7 @@ class InvoicePaymentsController < ApplicationController
     @payment = @invoice.payments.build(payment_params)
 
     if @payment.save
-      redirect_to invoice_path(@invoice), notice: 'Payment was successfully recorded.'
+      redirect_to invoice_path(@invoice), notice: "Payment was successfully recorded."
     else
       redirect_to invoice_path(@invoice), alert: "Payment could not be recorded: #{@payment.errors.full_messages.join(', ')}"
     end
@@ -14,7 +14,7 @@ class InvoicePaymentsController < ApplicationController
   def destroy
     @payment = @invoice.payments.find(params[:id])
     @payment.destroy
-    redirect_to invoice_path(@invoice), notice: 'Payment was successfully deleted.'
+    redirect_to invoice_path(@invoice), notice: "Payment was successfully deleted."
   end
 
   private

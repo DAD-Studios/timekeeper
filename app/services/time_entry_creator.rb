@@ -7,9 +7,9 @@ class TimeEntryCreator
     find_or_create_client
     find_or_create_project
     handle_existing_task
-    
+
     @time_entry = TimeEntry.new(@params.except(:new_client_name, :new_project_name, :new_project_rate, :existing_task))
-    @time_entry.status = 'running'
+    @time_entry.status = "running"
     @time_entry.start_time = Time.current
     @time_entry.save
     @time_entry

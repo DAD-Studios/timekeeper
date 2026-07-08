@@ -3,8 +3,8 @@ class ProjectsController < ApplicationController
   before_action :set_clients, only: %i[new edit create update]
   before_action :handle_new_client, only: %i[create update]
 
-  DEFAULT_SORT_COLUMN = 'created_at'
-  DEFAULT_SORT_DIRECTION = 'desc'
+  DEFAULT_SORT_COLUMN = "created_at"
+  DEFAULT_SORT_DIRECTION = "desc"
 
   def index
     projects = Project.includes(:client).order(sort_order)

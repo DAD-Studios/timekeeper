@@ -1,14 +1,14 @@
 class Invoice < ApplicationRecord
   belongs_to :client
-  has_many :line_items, class_name: 'InvoiceLineItem', dependent: :destroy
-  has_many :payments, class_name: 'InvoicePayment', dependent: :destroy
+  has_many :line_items, class_name: "InvoiceLineItem", dependent: :destroy
+  has_many :payments, class_name: "InvoicePayment", dependent: :destroy
   has_many :time_entries, through: :line_items
 
   has_rich_text :notes
   has_rich_text :payment_instructions
 
   accepts_nested_attributes_for :line_items, allow_destroy: true, reject_if: proc { |attributes|
-    attributes['description'].blank? && attributes['quantity'].blank? && attributes['rate'].blank?
+    attributes["description"].blank? && attributes["quantity"].blank? && attributes["rate"].blank?
   }
 
   enum :status, {
@@ -32,8 +32,8 @@ class Invoice < ApplicationRecord
   after_save :calculate_totals_after_save
   after_destroy :decrement_next_invoice_number, if: :most_recent?
 
-  scope :overdue, -> { where(status: :sent).where('due_date < ?', Date.current) }
-  scope :unpaid, -> { where(status: [:sent, :overdue, :partially_paid]) }
+  scope :overdue, -> { where(status: :sent).where("due_date < ?", Date.current) }
+  scope :unpaid, -> { where(status: [ :sent, :overdue, :partially_paid ]) }
   scope :recent, -> { order(created_at: :desc) }
 
   def mark_as_paid!(payment_date: Date.current, payment_method: nil, reference_number: nil)

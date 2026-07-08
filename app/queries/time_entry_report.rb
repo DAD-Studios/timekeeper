@@ -1,5 +1,5 @@
 class TimeEntryReport
-  def initialize(sort_column: 'created_at', sort_direction: 'desc')
+  def initialize(sort_column: "created_at", sort_direction: "desc")
     @sort_column = sort_column
     @sort_direction = sort_direction
   end

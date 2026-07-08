@@ -14,7 +14,7 @@ class InvoicePdfGenerator
       y_position = pdf.cursor
 
       # Left side - Logo and Profile Info
-      pdf.bounding_box([0, y_position], width: 250) do
+      pdf.bounding_box([ 0, y_position ], width: 250) do
         if @profile&.show_logo && @profile.logo.attached?
           begin
             logo_path = ActiveStorage::Blob.service.send(:path_for, @profile.logo.key)
@@ -40,7 +40,7 @@ class InvoicePdfGenerator
       end
 
       # Right side - Client Info
-      pdf.bounding_box([pdf.bounds.width - 250, y_position], width: 250) do
+      pdf.bounding_box([ pdf.bounds.width - 250, y_position ], width: 250) do
         pdf.text "Bill To:", size: 12, style: :bold, align: :right
         pdf.text @invoice.client.name, size: 10, align: :right
         pdf.text "Attn: #{@invoice.client.contact_name}", size: 9, align: :right if @invoice.client.contact_name.present?
@@ -72,20 +72,20 @@ class InvoicePdfGenerator
           pdf.move_down 5
         end
 
-        table_data = [["Description", "Hours", "Rate", "Amount"]]
+        table_data = [ [ "Description", "Hours", "Rate", "Amount" ] ]
         items.each do |item|
           table_data << [
             item.description,
-            sprintf('%.2f', item.quantity),
+            sprintf("%.2f", item.quantity),
             "$#{sprintf('%.2f', item.rate)}",
             "$#{sprintf('%.2f', item.amount)}"
           ]
         end
 
-        pdf.table(table_data, width: pdf.bounds.width, cell_style: { borders: [:bottom], border_color: "CCCCCC", padding: [5, 10] }) do
+        pdf.table(table_data, width: pdf.bounds.width, cell_style: { borders: [ :bottom ], border_color: "CCCCCC", padding: [ 5, 10 ] }) do
           row(0).font_style = :bold
           row(0).background_color = "F5F5F5"
-          row(0).borders = [:top, :bottom]
+          row(0).borders = [ :top, :bottom ]
           row(0).border_width = 2
           columns(1..3).align = :right
         end

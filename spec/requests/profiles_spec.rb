@@ -18,5 +18,4 @@ RSpec.describe "Profiles", type: :request do
       expect(Profile.first.business_name).to eq("Updated Company")
     end
   end
-
 end

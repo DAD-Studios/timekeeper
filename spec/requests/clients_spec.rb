@@ -57,5 +57,4 @@ RSpec.describe "Clients", type: :request do
       expect(response).to redirect_to(clients_path)
     end
   end
-
 end

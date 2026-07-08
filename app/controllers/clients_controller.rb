@@ -1,5 +1,5 @@
 class ClientsController < ApplicationController
-  before_action :set_client, only: [:show, :edit, :update, :destroy]
+  before_action :set_client, only: [ :show, :edit, :update, :destroy ]
 
   def index
     @clients = Client.includes(:invoices).page(params[:page]).per(25)
@@ -19,7 +19,7 @@ class ClientsController < ApplicationController
     @client = Client.new(client_params)
 
     if @client.save
-      redirect_to clients_url, notice: 'Client was successfully created.'
+      redirect_to clients_url, notice: "Client was successfully created."
     else
       render :new, status: :unprocessable_content
     end
@@ -27,7 +27,7 @@ class ClientsController < ApplicationController
 
   def update
     if @client.update(client_params)
-      redirect_to clients_url, notice: 'Client was successfully updated.'
+      redirect_to clients_url, notice: "Client was successfully updated."
     else
       render :edit, status: :unprocessable_content
     end

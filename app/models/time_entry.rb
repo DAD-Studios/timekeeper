@@ -1,7 +1,7 @@
 class TimeEntry < ApplicationRecord
   SECONDS_PER_HOUR = 3600.0
-  STATUS_RUNNING = 'running'
-  STATUS_COMPLETED = 'completed'
+  STATUS_RUNNING = "running"
+  STATUS_COMPLETED = "completed"
 
   belongs_to :project
   belongs_to :client
@@ -54,7 +54,7 @@ class TimeEntry < ApplicationRecord
     running_timers = TimeEntry.running
     running_timers = running_timers.where.not(id: id) if persisted?
     if running_timers.exists?
-      errors.add(:base, 'A timer is already running. Please stop it before starting a new one.')
+      errors.add(:base, "A timer is already running. Please stop it before starting a new one.")
     end
   end
 

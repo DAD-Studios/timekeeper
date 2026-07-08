@@ -23,8 +23,8 @@ class ApplicationController < ActionController::Base
     logger.error "404 Not Found: #{exception.message}" if exception
 
     respond_to do |format|
-      format.html { render 'errors/not_found', status: :not_found, layout: 'application' }
-      format.json { render json: { error: 'Not found', message: exception&.message }, status: :not_found }
+      format.html { render "errors/not_found", status: :not_found, layout: "application" }
+      format.json { render json: { error: "Not found", message: exception&.message }, status: :not_found }
       format.all { render body: nil, status: :not_found }
     end
   end
@@ -38,12 +38,12 @@ class ApplicationController < ActionController::Base
   def render_unprocessable_content(exception = nil)
     @exception = exception
     respond_to do |format|
-      format.html { render 'errors/unprocessable_content', status: :unprocessable_content, layout: 'application' }
+      format.html { render "errors/unprocessable_content", status: :unprocessable_content, layout: "application" }
       format.json { render json: { error: exception&.message }, status: :unprocessable_content }
       format.turbo_stream do
         render turbo_stream: turbo_stream.replace(
           dom_id(exception.record),
-          partial: 'shared/form_errors',
+          partial: "shared/form_errors",
           locals: { resource: exception.record }
         ), status: :unprocessable_content
       end
@@ -56,8 +56,8 @@ class ApplicationController < ActionController::Base
     logger.error exception.backtrace.join("\n") if exception&.backtrace
 
     respond_to do |format|
-      format.html { render 'errors/internal_server_error', status: :internal_server_error, layout: 'application' }
-      format.json { render json: { error: 'Internal server error' }, status: :internal_server_error }
+      format.html { render "errors/internal_server_error", status: :internal_server_error, layout: "application" }
+      format.json { render json: { error: "Internal server error" }, status: :internal_server_error }
       format.all { render body: nil, status: :internal_server_error }
     end
   end

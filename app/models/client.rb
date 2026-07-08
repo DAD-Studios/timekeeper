@@ -9,14 +9,14 @@ class Client < ApplicationRecord
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
 
   def contact_name
-    [first_name, last_name].compact.join(' ').presence
+    [ first_name, last_name ].compact.join(" ").presence
   end
 
   def full_address
     [
       address_line1,
       address_line2,
-      [city, state, zip_code].compact.join(', '),
+      [ city, state, zip_code ].compact.join(", "),
       country
     ].compact.reject(&:blank?).join("\n")
   end

@@ -7,7 +7,7 @@ class ProfilesController < ApplicationController
     @profile = Profile.first_or_initialize
 
     if @profile.update(profile_params)
-      redirect_to edit_profile_path, notice: 'Profile was successfully updated.'
+      redirect_to edit_profile_path, notice: "Profile was successfully updated."
     else
       render :edit, status: :unprocessable_content
     end
