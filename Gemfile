@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-gem "rails", "~> 8.1.1"
+gem "rails", "~> 8.1.3"
 
 # The modern asset pipeline for Rails
 gem "propshaft"
@@ -61,5 +61,4 @@ gem "prawn-table"
 gem "image_processing"
 
 gem "lexxy", "~> 0.1.4.beta"
-
 
