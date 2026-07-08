@@ -16,8 +16,8 @@ RSpec.feature "Time Entry Edit Form", type: :feature do
     project: project,
     task: "Test Task",
     status: 'completed',
-    start_time: Time.utc(2025, 10, 8, 9, 0, 0),
-    end_time: Time.utc(2025, 10, 8, 11, 30, 0)
+    start_time: Time.zone.local(2025, 10, 8, 9, 0, 0),
+    end_time: Time.zone.local(2025, 10, 8, 11, 30, 0)
   ) }
 
   scenario "editing an existing unpaid time entry shows time details and Update button" do

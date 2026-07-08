@@ -30,6 +30,7 @@ RSpec.describe "TimeEntry Edit Page Rendering", type: :request do
       expect(response.body).to include("End Time")
       expect(response.body).to include("Duration")
       expect(response.body).to include("2.50 hours")
+      expect(response.body).to include(%(data-current-task="#{time_entry.task}"))
     end
 
     it "renders successfully for paid time entry" do

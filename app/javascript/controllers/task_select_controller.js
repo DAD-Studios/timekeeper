@@ -12,6 +12,7 @@ export default class extends Controller {
     try {
       const response = await fetch('/api/tasks')
       this.allTasks = await response.json()
+      this.filterTasks()
     } catch (error) {
       console.error('Error loading tasks:', error)
     }
@@ -32,8 +33,12 @@ export default class extends Controller {
 
     // Get unique task names
     const uniqueTasks = [...new Set(filteredTasks.map(task => task.task))]
+    const selectedTask = this.taskDropdownTarget.value || this.taskDropdownTarget.dataset.currentTask || ""
 
     this.taskDropdownTarget.innerHTML = '<option value="">Select an existing task</option>' +
-      uniqueTasks.map(task => `<option value="${task}">${task}</option>`).join('')
+      uniqueTasks.map(task => {
+        const selected = task === selectedTask ? ' selected' : ''
+        return `<option value="${task}"${selected}>${task}</option>`
+      }).join('')
   }
 }

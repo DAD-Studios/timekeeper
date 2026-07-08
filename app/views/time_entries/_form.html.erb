@@ -64,7 +64,7 @@
     </div>
 
     <div data-new-entity-target="taskSelect">
-      <select name="time_entry[existing_task]" data-task-select-target="taskDropdown" <%= 'disabled' if time_entry.paid? %>>
+      <select name="time_entry[existing_task]" data-task-select-target="taskDropdown" data-current-task="<%= time_entry.task %>" <%= 'disabled' if time_entry.paid? %>>
         <option value="">Select an existing task</option>
       </select>
     </div>

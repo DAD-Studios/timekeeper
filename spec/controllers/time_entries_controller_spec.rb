@@ -180,6 +180,46 @@ RSpec.describe TimeEntriesController, type: :controller do
         expect(time_entry.task).to eq("Updated Task")
       end
 
+      it "ignores form-only helper fields posted by the edit form" do
+        put :update, params: {
+          id: time_entry.to_param,
+          time_entry: {
+            client_id: client.id,
+            new_client_name: "",
+            project_id: project.id,
+            new_project_name: "",
+            new_project_rate: "",
+            existing_task: "",
+            task: "Updated Task",
+            start_time: "2026-05-05T15:00",
+            end_time: "2026-05-05T17:00",
+            notes: "<p><br></p>"
+          }
+        }
+
+        expect(response).to redirect_to(time_entries_path)
+        time_entry.reload
+        expect(time_entry.task).to eq("Updated Task")
+      end
+
+      it "uses an existing task selected from the edit form dropdown" do
+        put :update, params: {
+          id: time_entry.to_param,
+          time_entry: {
+            client_id: client.id,
+            project_id: project.id,
+            existing_task: "Previously Used Task",
+            task: "Typed Task",
+            start_time: "2026-05-05T15:00",
+            end_time: "2026-05-05T17:00"
+          }
+        }
+
+        expect(response).to redirect_to(time_entries_path)
+        time_entry.reload
+        expect(time_entry.task).to eq("Previously Used Task")
+      end
+
       it "redirects to the time_entries list" do
         put :update, params: { id: time_entry.to_param, time_entry: { task: "Updated Task" } }
         expect(response).to redirect_to(time_entries_path)

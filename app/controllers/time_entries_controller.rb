@@ -38,7 +38,7 @@ class TimeEntriesController < ApplicationController
         render :edit, status: :unprocessable_content
       end
     else
-      if @time_entry.update(time_entry_params)
+      if @time_entry.update(update_time_entry_params)
         redirect_to time_entries_path, notice: "Time entry was successfully updated."
       else
         render :edit, status: :unprocessable_content
@@ -70,5 +70,11 @@ class TimeEntriesController < ApplicationController
   def time_entry_params
     params.require(:time_entry).permit(:task, :notes, :project_id, :client_id, :start_time, :end_time,
                                    :new_client_name, :new_project_name, :new_project_rate, :existing_task)
+  end
+
+  def update_time_entry_params
+    attributes = time_entry_params.to_h.symbolize_keys
+    attributes[:task] = attributes[:existing_task] if attributes[:existing_task].present?
+    attributes.except(:new_client_name, :new_project_name, :new_project_rate, :existing_task)
   end
 end
